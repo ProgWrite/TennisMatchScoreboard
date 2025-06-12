@@ -1,4 +1,4 @@
-package util;
+package TennisMatchScoreboard.util;
 
 
 import lombok.experimental.UtilityClass;
