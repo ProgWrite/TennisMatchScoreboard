@@ -31,6 +31,7 @@ public class NewMatchServlet extends HttpServlet {
 
             ValidationUtils.validate(firstPlayerName, secondPlayerName);
 
+
             resp.sendRedirect(req.getContextPath() + "/match-score");
 
 
