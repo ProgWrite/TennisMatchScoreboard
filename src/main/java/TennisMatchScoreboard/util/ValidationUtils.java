@@ -2,19 +2,22 @@ package TennisMatchScoreboard.util;
 
 import TennisMatchScoreboard.exceptions.InvalidParameterException;
 
-//TODO возможно нужна будет уникальная валидация на имя, либо проверка что такое имя есть в БД (на уровне БД)
+//TODO возможно нужна будет уникальная валидация на имя, либо проверка что такое имя есть в БД (на уровне БД).
+//TODO возможно валдиация будет по другому через аннотации (смотрел урок у dmdev)
+
 public class ValidationUtils {
     private final static int REQUIRED_LENGTH_FOR_NAME = 20;
 
 
-
+    //TODO сделать чтобы при ошибках ошибка вызывалась бы на странице текстом.
     //TODO тут тоже будет объект Dto
     public static void validate(String firstPlayerName, String secondPlayerName){
         checkName(firstPlayerName);
         checkName(secondPlayerName);
 
 
-        if(firstPlayerName.trim().equalsIgnoreCase(secondPlayerName.trim())){
+        if(firstPlayerName.trim().replace(" ", "")
+                .equalsIgnoreCase(secondPlayerName.trim().replace(" ", ""))){
             throw new InvalidParameterException("Player names must be different");
         }
     }

@@ -1,7 +1,6 @@
 package TennisMatchScoreboard.Servlet;
 
 
-import TennisMatchScoreboard.exceptions.InvalidParameterException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -31,6 +30,9 @@ public class NewMatchServlet extends HttpServlet {
             String secondPlayerName = req.getParameter("name2");
 
             ValidationUtils.validate(firstPlayerName, secondPlayerName);
+
+            resp.sendRedirect(req.getContextPath() + "/match-score");
+
 
 
 
