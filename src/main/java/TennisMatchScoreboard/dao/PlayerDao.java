@@ -1,13 +1,13 @@
 package TennisMatchScoreboard.dao;
 
 import TennisMatchScoreboard.entity.Player;
-
-import jakarta.persistence.EntityManager;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 public class PlayerDao extends BaseDao<Long, Player> {
 
-    public PlayerDao(EntityManager entityManager) {
-        super(Player.class, entityManager);
+    public PlayerDao(Session session) {
+        super(Player.class, session);
     }
 
 }

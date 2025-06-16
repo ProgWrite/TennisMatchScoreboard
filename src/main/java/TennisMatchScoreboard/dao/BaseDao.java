@@ -1,8 +1,8 @@
 package TennisMatchScoreboard.dao;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaQuery;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,41 +10,44 @@ import java.util.Optional;
 
 //TODO если какие-то методы не понадобятся, тогда не используй их! Убери и в классах наследниках.
 //TODO возможно нужно будет переименовать это в Repository!!!
+
 @RequiredArgsConstructor
 public class BaseDao<K extends Serializable, E> implements Dao<K,E> {
 
-
     private final Class<E> entityClass;
-    private final EntityManager entityManager;
+    private final Session session;
+
 
     @Override
-    public E save(E entity) {
-
-        entityManager.persist(entity);
+    public E create(E entity) {
+        session.persist(entity);
         return entity;
     }
 
     @Override
     public void update(E entity) {
-        entityManager.merge(entity);
+        session.merge(entity);
     }
 
     @Override
     public Optional<E> findById(K id) {
-        return Optional.ofNullable(entityManager.find(entityClass, id));
+        return Optional.ofNullable(session.find(entityClass, id));
     }
 
     @Override
     public List<E> findAll() {
-        CriteriaQuery<E> criteria = entityManager.getCriteriaBuilder().createQuery(entityClass);
+        CriteriaQuery<E> criteria = session.getCriteriaBuilder().createQuery(entityClass);
         criteria.from(entityClass);
-        return entityManager.createQuery(criteria)
+        return session.createQuery(criteria)
                 .getResultList();
     }
 
     @Override
     public void delete(K id) {
-       entityManager.remove(id);
-       entityManager.flush();
+        E entity = session.find(entityClass, id);
+        if (entity != null) {
+            session.remove(entity);
+            session.flush();
+        }
     }
 }

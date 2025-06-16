@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface Dao<K extends Serializable,E> {
 
-    E save(E entity);
+    E create(E entity);
 
     void update(E entity);
 

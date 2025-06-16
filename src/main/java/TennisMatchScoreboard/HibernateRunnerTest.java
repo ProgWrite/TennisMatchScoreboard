@@ -5,37 +5,70 @@ package TennisMatchScoreboard;
 
 import TennisMatchScoreboard.dao.PlayerDao;
 import TennisMatchScoreboard.entity.Player;
+import TennisMatchScoreboard.mapper.PlayerMapper;
 import TennisMatchScoreboard.util.HibernateUtil;
-import lombok.Cleanup;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 public class HibernateRunnerTest {
+    private final static SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+    private final static PlayerMapper PLAYER_MAPPER = PlayerMapper.getInstance();
+
+
 
     public static void main(String[] args) {
 
-        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
         Session session = sessionFactory.getCurrentSession();
-
-        session.beginTransaction();
 
         PlayerDao playerDao = new PlayerDao(session);
 
-        Player player = Player.builder()
-                .name("Dmitry")
+        session.beginTransaction();
+
+        Player player1 = Player.builder()
+                .name("Player 1")
                 .build();
 
         Player player2 = Player.builder()
-                .name("Alfiya")
+                .name("Player 2")
                 .build();
 
-        playerDao.save(player);
-        playerDao.save(player2);
+        Player player3 = Player.builder()
+                .name("Player 2")
+                .build();
 
-        System.out.println(playerDao.findAll());
+
+        // Проверка и сохранение player1
+        if (!isPlayerExists(session, player1.getName())) {
+            playerDao.create(player1);
+            System.out.println("Игрок " + player1.getName() + " создан!");
+        }
+
+        // Проверка и сохранение player2
+        if (!isPlayerExists(session, player2.getName())) {
+            playerDao.create(player2);
+            System.out.println("Игрок " + player2.getName() + " создан!");
+        }
+
+        // Проверка player3 (дубликат player2)
+        if (!isPlayerExists(session, player3.getName())) {
+            playerDao.create(player3);
+            System.out.println("Игрок " + player3.getName() + " создан!");
+        } else {
+            System.out.println("Игрок " + player3.getName() + " уже существует!");
+        }
 
         session.getTransaction().commit();
-
     }
+
+
+
+    private static boolean isPlayerExists(Session session, String name) {
+        return session.createQuery("FROM Player WHERE name = :name", Player.class)
+                .setParameter("name", name)
+                .setMaxResults(1)
+                .uniqueResult() != null;
+    }
+
+
 
 }
