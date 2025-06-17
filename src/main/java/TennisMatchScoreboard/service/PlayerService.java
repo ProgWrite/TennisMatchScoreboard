@@ -12,6 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 //TODO возможно тут будет валидация (как в Ролике у dmdev). Тогда уберется класс ValidationUtils.
+//TODO возможно этот класс изменится
 
 @RequiredArgsConstructor
 public class PlayerService {
