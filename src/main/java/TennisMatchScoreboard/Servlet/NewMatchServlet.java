@@ -1,8 +1,8 @@
 package TennisMatchScoreboard.Servlet;
 
 
-import TennisMatchScoreboard.dto.PlayerDto;
-import TennisMatchScoreboard.mapper.PlayerMapper;
+import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.entity.Player;
 import TennisMatchScoreboard.service.OngoingMatchService;
 import TennisMatchScoreboard.service.PlayerService;
 import TennisMatchScoreboard.util.JspHelper;
@@ -20,8 +20,8 @@ import java.util.UUID;
 
 @WebServlet("/new-match")
 public class NewMatchServlet extends HttpServlet {
-    private final PlayerMapper playerMapper = PlayerMapper.getInstance();
-    private final PlayerService playerService = new PlayerService(playerMapper);
+
+    private final PlayerService playerService = new PlayerService();
     private final OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
 
 
@@ -42,16 +42,14 @@ public class NewMatchServlet extends HttpServlet {
             session.setAttribute("firstPlayerName", firstPlayerName);
             session.setAttribute("secondPlayerName", secondPlayerName);
 
-            PlayerDto first = new PlayerDto(firstPlayerName);
-            PlayerDto second = new PlayerDto(secondPlayerName);
+            Player first = new Player(firstPlayerName);
+            Player second = new Player(secondPlayerName);
 
             //TODO думаю это можно сделать более изящно! Мб тут будут исключения
-            PlayerDto firstPlayer = playerService.create(first);
-            PlayerDto secondPlayer = playerService.create(second);
-            ongoingMatchService.createOngoingMatch(firstPlayer, secondPlayer);
-            UUID uuid = ongoingMatchService.getMatchId();
+            Player firstPlayer = playerService.create(first);
+            Player secondPlayer = playerService.create(second);
+            UUID uuid = ongoingMatchService.createNewMatch(firstPlayer,secondPlayer);
 
-            resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid.toString());
 
     }

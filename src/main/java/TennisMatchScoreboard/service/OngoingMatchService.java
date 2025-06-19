@@ -1,20 +1,17 @@
 package TennisMatchScoreboard.service;
 
-import TennisMatchScoreboard.dto.PlayerDto;
-import TennisMatchScoreboard.entity.MatchScore;
-import TennisMatchScoreboard.entity.MatchScoreModel;
+import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.entity.Player;
 import lombok.Getter;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class OngoingMatchService {
+    private static final Map<UUID, OngoingMatch> ongoingMatches = new ConcurrentHashMap<>();
     private final static OngoingMatchService INSTANCE = new OngoingMatchService();
-    private static final int INITIAL_POINTS = 0;
-    private final UUID matchId = UUID.randomUUID();
-    private MatchScore currentMatchScore;
-
-
 
     private OngoingMatchService() {
 
@@ -24,39 +21,73 @@ public class OngoingMatchService {
         return INSTANCE;
     }
 
-    // TODO возможно тут понадобится ID!
-    public void createOngoingMatch(PlayerDto firstPlayer, PlayerDto secondPlayer) {
-        MatchScoreModel matchScoreModel = new MatchScoreModel(firstPlayer, secondPlayer);
-        int[] firstPlayerScore = {INITIAL_POINTS, INITIAL_POINTS, INITIAL_POINTS};
-        int[] secondPlayerScore = {INITIAL_POINTS, INITIAL_POINTS, INITIAL_POINTS};
-        currentMatchScore = new MatchScore(firstPlayerScore, secondPlayerScore);
-        matchScoreModel.addMatch(matchId, currentMatchScore);
+
+    public UUID createNewMatch(Player firstPlayer, Player secondPlayer) {
+        UUID uuid = UUID.randomUUID();
+        OngoingMatch match = new OngoingMatch(uuid, firstPlayer, secondPlayer);
+        ongoingMatches.put(uuid, match);
+        return uuid;
     }
 
-
-    public int getFirstPlayerSet(){
-        return currentMatchScore.getFirstPlayerScore()[0];
+    public OngoingMatch getMatch(UUID uuid) {
+        return ongoingMatches.get(uuid);
     }
 
-    public int getFirstPlayerGame(){
-        return currentMatchScore.getFirstPlayerScore()[1];
-    }
+    //TODO Метод с логикой завершения матча (удалить из коллекции и запихать в БД)
 
-    public int getFirstPlayerPoint(){
-        return currentMatchScore.getFirstPlayerScore()[2];
-    }
 
-    public int getSecondPlayerSet(){
-        return currentMatchScore.getSecondPlayerScore()[0];
-    }
 
-    public int getSecondPlayerGame(){
-        return currentMatchScore.getSecondPlayerScore()[1];
-    }
 
-    public int getSecondPlayerPoint(){
-        return currentMatchScore.getSecondPlayerScore()[2];
-    }
+
+
+//    public void setFirstPlayerScore(){
+//        firstPlayerSetScore = currentMatchScore.getFirstPlayerScore()[0];
+//    }
+//
+//    public int getFirstPlayerSet(){
+//        return firstPlayerSetScore;
+//    }
+//
+//    public void updateFirstPlayerSetScore() {
+//        this.firstPlayerSetScore += 15;
+//    }
+//
+//
+//    public void setSecondPlayerScore(){
+//        secondPlayerSetScore = currentMatchScore.getSecondPlayerScore()[0];
+//    }
+//
+//    public int getSecondPlayerSet(){
+//        return secondPlayerSetScore;
+//    }
+//
+//    public void updateSecondPlayerSetScore() {
+//        this.secondPlayerSetScore += 15;
+//    }
+//
+//
+//
+//
+//
+//
+//    public int getFirstPlayerGame(){
+//        return currentMatchScore.getFirstPlayerScore()[1];
+//    }
+//
+//    public int getFirstPlayerPoint(){
+//        return currentMatchScore.getFirstPlayerScore()[2];
+//    }
+//
+//
+//
+//    public int getSecondPlayerGame(){
+//        return currentMatchScore.getSecondPlayerScore()[1];
+//    }
+//
+//    public int getSecondPlayerPoint(){
+//        return currentMatchScore.getSecondPlayerScore()[2];
+//    }
+
 
 
 

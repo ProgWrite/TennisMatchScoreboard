@@ -5,14 +5,13 @@ package TennisMatchScoreboard;
 
 import TennisMatchScoreboard.dao.PlayerDao;
 import TennisMatchScoreboard.entity.Player;
-import TennisMatchScoreboard.mapper.PlayerMapper;
 import TennisMatchScoreboard.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 public class HibernateRunnerTest {
     private final static SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
-    private final static PlayerMapper PLAYER_MAPPER = PlayerMapper.getInstance();
+
 
 
 

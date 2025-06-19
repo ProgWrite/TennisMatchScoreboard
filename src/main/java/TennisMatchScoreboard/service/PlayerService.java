@@ -2,9 +2,7 @@ package TennisMatchScoreboard.service;
 
 
 import TennisMatchScoreboard.dao.PlayerDao;
-import TennisMatchScoreboard.dto.PlayerDto;
 import TennisMatchScoreboard.entity.Player;
-import TennisMatchScoreboard.mapper.PlayerMapper;
 import TennisMatchScoreboard.util.HibernateUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -17,27 +15,28 @@ import org.hibernate.SessionFactory;
 @RequiredArgsConstructor
 public class PlayerService {
 
-    private final PlayerMapper playerMapper;
+
+
+
     private final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
-    public PlayerDto create(PlayerDto playerDto) {
+    //TODO может этот метод можно реализовать более изящно
+    public Player create(Player player) {
         Session session = sessionFactory.openSession();
 
         try {
             session.beginTransaction();
 
-            Player player = playerMapper.mapToEntity(playerDto);
-
             if(isPlayerExists(session, player.getName())) {
                 session.getTransaction().commit();
-                return playerMapper.mapToDto(player);
+                return player;
             }
 
             PlayerDao playerDao = new PlayerDao(session);
             playerDao.create(player);
             session.flush();
             session.getTransaction().commit();
-            return playerDto;
+            return player;
 
         } catch (Exception e) {
             if (session.getTransaction() != null) {
