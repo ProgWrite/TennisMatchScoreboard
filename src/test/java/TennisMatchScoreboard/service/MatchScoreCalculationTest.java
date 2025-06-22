@@ -1,4 +1,5 @@
 package TennisMatchScoreboard.service;
 
-public class OngoingMatchServiceTest {
+
+public class MatchScoreCalculationTest {
 }
