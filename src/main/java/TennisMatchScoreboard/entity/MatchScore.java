@@ -1,64 +1,66 @@
 package TennisMatchScoreboard.entity;
 
 
+import TennisMatchScoreboard.enums.TennisScore;
 import lombok.*;
 
 @Getter
 @Setter
 public class MatchScore {
-    private final static int INITIAL_SETS = 0;
-    private final static int INITIAL_GAMES = 0;
-    private final static int INITIAL_POINTS = 0;
 
-    private int[] firstPlayerScore = {INITIAL_SETS, INITIAL_GAMES, INITIAL_POINTS};
-    private int[] secondPlayerScore = {INITIAL_SETS, INITIAL_GAMES, INITIAL_POINTS};
+    private String[] firstPlayerScore =
+            {TennisScore.LOVE.toString(), TennisScore.LOVE.toString(), TennisScore.LOVE.toString()};
 
-    public int getFirstPlayerPoints() {
+    private String[] secondPlayerScore =
+            {TennisScore.LOVE.toString(), TennisScore.LOVE.toString(), TennisScore.LOVE.toString()};
+
+
+    public String getFirstPlayerPoints() {
         return firstPlayerScore[2];
     }
 
-    public void updateFirstPlayerPoints(int points){
-        firstPlayerScore[2] += points;
+    public void updateFirstPlayerPoints(TennisScore newScore) {
+        firstPlayerScore[2] = newScore.toString();
     }
 
-    public int getSecondPlayerPoints() {
+    public String getSecondPlayerPoints() {
         return secondPlayerScore[2];
     }
 
-    public void updateSecondPlayerPoints(int points){
-        secondPlayerScore[2] += points;
+    public void updateSecondPlayerPoints(TennisScore newScore){
+        secondPlayerScore[2] = newScore.toString();
     }
 
-    public int getFirstPlayerGames(){
+    public String getFirstPlayerGames(){
         return firstPlayerScore[1];
     }
 
-    public void updateFirstPlayerGames(int points){
-        firstPlayerScore[1] += points;
+    public void updateFirstPlayerGames(TennisScore newScore){
+        firstPlayerScore[1] = newScore.toString();
     }
 
-    public int getSecondPlayerGames(){
+    public String getSecondPlayerGames(){
         return secondPlayerScore[1];
     }
 
-    public void updateSecondPlayerGames(int points){
-        secondPlayerScore[1] += points;
+    public void updateSecondPlayerGames(TennisScore newScore){
+        secondPlayerScore[1] = newScore.toString();
     }
 
-    public int getFirstPlayerSets(){
+    public String getFirstPlayerSets(){
         return firstPlayerScore[0];
     }
 
-    public void updateFirstPlayerSets(int points){
-        firstPlayerScore[0] += points;
+    public void updateFirstPlayerSets(TennisScore newScore){
+        firstPlayerScore[0] = newScore.toString();
     }
 
-    public int getSecondPlayerSets(){
+    public String getSecondPlayerSets(){
         return secondPlayerScore[0];
     }
 
-    public void updateSecondPlayerSets(int points){
-        secondPlayerScore[0] += points;
+    public void updateSecondPlayerSets(TennisScore newScore){
+        secondPlayerScore[0] = newScore.toString();
     }
 
 

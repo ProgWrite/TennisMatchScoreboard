@@ -1,83 +1,208 @@
 package TennisMatchScoreboard.service;
 
+import TennisMatchScoreboard.enums.GameState;
+import TennisMatchScoreboard.enums.Player;
 import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.enums.TennisScore;
 
 public class MatchScoreCalculationService {
     private final OngoingMatch ongoingMatch;
-    private final int ZERO = 0;
-    private final int FIVE = 5;
-    private final int TEN = 10;
-    private final int FIFTEEN = 15;
-    private final int THIRTY = 30;
-    private final int FORTY = 40;
-
-    private final int NEGATIVE_FIVE = -FIVE;
-    private final int NEGATIVE_FORTY = -FORTY;
-
-    private final int ONE = 1;
-
-    // для AD логика
-
+    private GameState state = GameState.PLAYING;
 
     public MatchScoreCalculationService(OngoingMatch ongoingMatch) {
         this.ongoingMatch = ongoingMatch;
     }
 
-    //TODO метод однозначно буду дробить
-    public void updateFirstPlayerScore() {
+    public void gameScoreCalculation(String action) {
         MatchScore matchScore = ongoingMatch.getMatchScore();
-        int currentPoints = matchScore.getFirstPlayerPoints();
-        int currentGames = matchScore.getFirstPlayerGames();
-        int currentSets = matchScore.getFirstPlayerSets();
+        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String firstPlayerSets = matchScore.getFirstPlayerSets();
 
-        if(currentPoints >= FORTY) {
-            if(currentGames == FIVE) {
-                matchScore.updateFirstPlayerSets(ONE);
-                matchScore.updateFirstPlayerGames(NEGATIVE_FIVE);
-                matchScore.updateFirstPlayerPoints(NEGATIVE_FORTY);
-            }else {
-                matchScore.updateFirstPlayerPoints(NEGATIVE_FORTY);
-                matchScore.updateFirstPlayerGames(ONE);
-            }
+        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String secondPlayerSets = matchScore.getSecondPlayerSets();
+
+        // TODO логика когда AD (надо верно реализовать)
+        if ((firstPlayerPoints.equals(TennisScore.FORTY.toString()) && secondPlayerPoints.equals(TennisScore.FORTY.toString()))
+            || (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString()) && secondPlayerPoints.equals(TennisScore.FORTY.toString()))
+                || (firstPlayerPoints.equals(TennisScore.FORTY.toString()) && secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString()))
+        ) {
+            checkForAD(matchScore, action, firstPlayerPoints, secondPlayerPoints,
+                    firstPlayerGames, secondPlayerGames,
+                    firstPlayerSets, secondPlayerSets);
         }
 
-        if (currentPoints == ZERO  || currentPoints == FIFTEEN) {
-            matchScore.updateFirstPlayerPoints(FIFTEEN);
+        else if ("player1".equals(action)) {
+            updatePlayerScore(matchScore, Player.FIRST, firstPlayerPoints, firstPlayerGames, firstPlayerSets);
         }
-
-        if (currentPoints == THIRTY) {
-            matchScore.updateFirstPlayerPoints(TEN);
+        else if("player2".equals(action)) {
+            updatePlayerScore(matchScore, Player.SECOND, secondPlayerPoints, secondPlayerGames, secondPlayerSets);
         }
 
     }
 
+    private void updatePlayerScore(MatchScore matchScore, Player player, String currentPoints, String currentGames, String currentSets){
+        if (currentPoints.equals(TennisScore.FORTY.toString())) {
+            if (currentGames.equals(TennisScore.FIVE.toString())) {
+                TennisScore sets = TennisScore.fromString(currentSets);
+                TennisScore newSetScore = calculateNextSetsScore(sets);
+                updatePlayerSets(matchScore, player, newSetScore);
+            } else {
+                TennisScore games = TennisScore.fromString(currentGames);
+                TennisScore newGamesScore = calculateNextGamesScore(games);
+                updatePlayerGames(matchScore, player, newGamesScore);
+            }
+        } else {
+            TennisScore points = TennisScore.fromString(currentPoints);
+            TennisScore newPointsScore = calculateNextPointsScore(points);
+            updatePlayerPoints(matchScore, player, newPointsScore);
+        }
+    }
 
-    public void updateSecondPlayerScore() {
-        MatchScore matchScore = ongoingMatch.getMatchScore();
-        int currentPoints = matchScore.getSecondPlayerPoints();
-        int currentGames = matchScore.getSecondPlayerGames();
-        int currentSets = matchScore.getSecondPlayerSets();
 
-        if(currentPoints >= FORTY) {
-            if(currentGames == FIVE) {
-                matchScore.updateSecondPlayerSets(ONE);
-                matchScore.updateSecondPlayerGames(NEGATIVE_FIVE);
-                matchScore.updateSecondPlayerPoints(NEGATIVE_FORTY);
-            }else {
-                matchScore.updateSecondPlayerPoints(NEGATIVE_FORTY);
-                matchScore.updateSecondPlayerGames(ONE);
+
+    //TODO явно надо делить логику здесь
+    private void checkForAD(MatchScore matchScore, String action, String firstPlayerPoints, String secondPlayerPoints,
+                            String firstPlayerGames, String secondPlayerGames, String firstPlayerSets, String secondPlayerSets) {
+
+        if ("player1".equals(action)) {
+            if (firstPlayerPoints.equals(TennisScore.FORTY.toString()) &&
+                    secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                // Сброс AD у второго игрока
+                matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+            }
+            else if (firstPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                // Установка AD первому игроку
+                matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
+            }
+            else if (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                if(firstPlayerGames.equals(TennisScore.FIVE.toString())) {
+                    TennisScore sets = TennisScore.fromString(firstPlayerSets);
+                    TennisScore newSetScore = calculateNextSetsScore(sets);
+                    //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
+                    matchScore.updateFirstPlayerSets(newSetScore);
+                    updateScoreAfterSet(matchScore);
+                }else{
+                    updateScoreAfterGame(matchScore);
+                    TennisScore currentScore = TennisScore.fromString(firstPlayerGames);
+                    TennisScore gamesScore = calculateNextGamesScore(currentScore);
+                    matchScore.updateFirstPlayerGames(gamesScore);
+                }
             }
         }
+        else if ("player2".equals(action)) {
 
-        if (currentPoints == ZERO  || currentPoints == FIFTEEN) {
-            matchScore.updateSecondPlayerPoints(FIFTEEN);
+            if (secondPlayerPoints.equals(TennisScore.FORTY.toString()) &&
+                    firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
+            }
+            else if (secondPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
+            }
+            else if (secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+
+
+                if(secondPlayerGames.equals(TennisScore.FIVE.toString())) {
+                    TennisScore sets = TennisScore.fromString(secondPlayerSets);
+                    TennisScore newSetScore = calculateNextSetsScore(sets);
+                    //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
+                    matchScore.updateSecondPlayerSets(newSetScore);
+                    updateScoreAfterSet(matchScore);
+                }else{
+                    updateScoreAfterGame(matchScore);
+                    TennisScore currentScore = TennisScore.fromString(secondPlayerGames);
+                    TennisScore gamesScore = calculateNextGamesScore(currentScore);
+                    matchScore.updateSecondPlayerGames(gamesScore);
+                }
+            }
         }
-
-        if (currentPoints == THIRTY) {
-            matchScore.updateSecondPlayerPoints(TEN);
-        }
-
     }
+
+
+    private void updatePlayerPoints(MatchScore matchScore, Player player, TennisScore newScore) {
+        if (player == Player.FIRST) {
+            matchScore.updateFirstPlayerPoints(newScore);
+        } else {
+            matchScore.updateSecondPlayerPoints(newScore);
+        }
+    }
+
+    private void updatePlayerGames(MatchScore matchScore, Player player, TennisScore newScore) {
+        if (player == Player.FIRST) {
+            matchScore.updateFirstPlayerGames(newScore);
+            updateScoreAfterGame(matchScore);
+        } else {
+            matchScore.updateSecondPlayerGames(newScore);
+            updateScoreAfterGame(matchScore);
+        }
+    }
+
+    private void updatePlayerSets(MatchScore matchScore, Player player, TennisScore newScore) {
+        if (player == Player.FIRST) {
+            matchScore.updateFirstPlayerSets(newScore);
+            updateScoreAfterSet(matchScore);
+        } else {
+            matchScore.updateSecondPlayerSets(newScore);
+            updateScoreAfterSet(matchScore);
+        }
+    }
+
+
+
+    //TODO если отвяжусь от игроков (один общий метод, то тогда смогу сразу в этом методе обновлять кол-во очков (и в др. методах)
+    private TennisScore calculateNextPointsScore(TennisScore currentScore){
+        TennisScore newPointsScore =
+
+                switch (currentScore) {
+                    case LOVE -> TennisScore.FIFTEEN;
+                    case FIFTEEN -> TennisScore.THIRTY;
+                    case THIRTY -> TennisScore.FORTY;
+                    default -> throw new IllegalStateException("Unexpected value: " + currentScore);
+                };
+        return newPointsScore;
+    }
+
+    private TennisScore calculateNextGamesScore(TennisScore currentScore) {
+
+        TennisScore newGamesScore =
+                switch (currentScore){
+                    case LOVE -> TennisScore.ONE;
+                    case ONE -> TennisScore.TWO;
+                    case TWO -> TennisScore.THREE;
+                    case THREE -> TennisScore.FOUR;
+                    case FOUR -> TennisScore.FIVE;
+                    case FIVE -> TennisScore.SIX;
+                    default -> throw new IllegalStateException("Unexpected value: " + currentScore);
+                };
+        return newGamesScore;
+    }
+
+    private TennisScore calculateNextSetsScore(TennisScore currentScore){
+
+        TennisScore newSetsScore =
+                switch (currentScore){
+                    case LOVE -> TennisScore.ONE;
+                    case ONE -> TennisScore.TWO;
+                    default -> throw new IllegalStateException("Unexpected value: " + currentScore);
+                };
+        return newSetsScore;
+    }
+
+
+    private void updateScoreAfterGame(MatchScore matchScore){
+        matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
+        matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
+    }
+
+    private void updateScoreAfterSet(MatchScore matchScore){
+        matchScore.updateFirstPlayerGames(TennisScore.LOVE);
+        matchScore.updateSecondPlayerGames(TennisScore.LOVE);
+        matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
+        matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
+    }
+
+
 
 }

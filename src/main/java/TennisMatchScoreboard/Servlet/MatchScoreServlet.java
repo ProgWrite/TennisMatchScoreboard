@@ -20,7 +20,6 @@
         OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
 
 
-
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             HttpSession session = req.getSession();
@@ -44,11 +43,8 @@
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));
             MatchScoreCalculationService calculationService = new MatchScoreCalculationService(match);
 
-            if("player1".equals(action)) {
-                calculationService.updateFirstPlayerScore();
-            }else if("player2".equals(action)) {
-                calculationService.updateSecondPlayerScore();
-            }
+            calculationService.gameScoreCalculation(action);
+
             //TODO потом будет логика до выигрыша
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);
         }
