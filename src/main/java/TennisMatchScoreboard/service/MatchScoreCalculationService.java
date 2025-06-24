@@ -1,14 +1,14 @@
 package TennisMatchScoreboard.service;
 
-import TennisMatchScoreboard.enums.GameState;
-import TennisMatchScoreboard.enums.Player;
 import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.enums.Player;
 import TennisMatchScoreboard.enums.TennisScore;
 
 public class MatchScoreCalculationService {
     private final OngoingMatch ongoingMatch;
-    private GameState state = GameState.PLAYING;
+    private static final String FIRST_PLAYER_ACTION = "player1";
+    private static final String SECOND_PLAYER_ACTION = "player2";
 
     public MatchScoreCalculationService(OngoingMatch ongoingMatch) {
         this.ongoingMatch = ongoingMatch;
@@ -24,20 +24,16 @@ public class MatchScoreCalculationService {
         String secondPlayerGames = matchScore.getSecondPlayerGames();
         String secondPlayerSets = matchScore.getSecondPlayerSets();
 
-        // TODO логика когда AD (надо верно реализовать)
-        if ((firstPlayerPoints.equals(TennisScore.FORTY.toString()) && secondPlayerPoints.equals(TennisScore.FORTY.toString()))
-            || (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString()) && secondPlayerPoints.equals(TennisScore.FORTY.toString()))
-                || (firstPlayerPoints.equals(TennisScore.FORTY.toString()) && secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString()))
-        ) {
-            checkForAD(matchScore, action, firstPlayerPoints, secondPlayerPoints,
+        if (isAdvantageScenario(firstPlayerPoints, secondPlayerPoints)) {
+            executeAdvantageLogic (matchScore, action, firstPlayerPoints, secondPlayerPoints,
                     firstPlayerGames, secondPlayerGames,
                     firstPlayerSets, secondPlayerSets);
         }
 
-        else if ("player1".equals(action)) {
+        else if (FIRST_PLAYER_ACTION.equals(action)) {
             updatePlayerScore(matchScore, Player.FIRST, firstPlayerPoints, firstPlayerGames, firstPlayerSets);
         }
-        else if("player2".equals(action)) {
+        else if(SECOND_PLAYER_ACTION.equals(action)) {
             updatePlayerScore(matchScore, Player.SECOND, secondPlayerPoints, secondPlayerGames, secondPlayerSets);
         }
 
@@ -62,62 +58,61 @@ public class MatchScoreCalculationService {
     }
 
 
-
-    //TODO явно надо делить логику здесь
-    private void checkForAD(MatchScore matchScore, String action, String firstPlayerPoints, String secondPlayerPoints,
+    private void executeAdvantageLogic(MatchScore matchScore, String action, String firstPlayerPoints, String secondPlayerPoints,
                             String firstPlayerGames, String secondPlayerGames, String firstPlayerSets, String secondPlayerSets) {
 
-        if ("player1".equals(action)) {
-            if (firstPlayerPoints.equals(TennisScore.FORTY.toString()) &&
-                    secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
-                // Сброс AD у второго игрока
-                matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
-            }
-            else if (firstPlayerPoints.equals(TennisScore.FORTY.toString())) {
-                // Установка AD первому игроку
-                matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
-            }
-            else if (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
-                if(firstPlayerGames.equals(TennisScore.FIVE.toString())) {
-                    TennisScore sets = TennisScore.fromString(firstPlayerSets);
-                    TennisScore newSetScore = calculateNextSetsScore(sets);
-                    //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
-                    matchScore.updateFirstPlayerSets(newSetScore);
-                    updateScoreAfterSet(matchScore);
-                }else{
-                    updateScoreAfterGame(matchScore);
-                    TennisScore currentScore = TennisScore.fromString(firstPlayerGames);
-                    TennisScore gamesScore = calculateNextGamesScore(currentScore);
-                    matchScore.updateFirstPlayerGames(gamesScore);
+            if ("player1".equals(action)) {
+                if (firstPlayerPoints.equals(TennisScore.FORTY.toString()) &&
+                        secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                    matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+                }
+                else if (firstPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                    matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
+                }
+                else if (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                    if(firstPlayerGames.equals(TennisScore.FIVE.toString())) {
+                        TennisScore sets = TennisScore.fromString(firstPlayerSets);
+                        TennisScore newSetScore = calculateNextSetsScore(sets);
+                        //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
+                        matchScore.updateFirstPlayerSets(newSetScore);
+                        updateScoreAfterSetPoint(matchScore);
+
+                    }else{
+                        updateScoreAfterGamePoint(matchScore);
+                        TennisScore currentScore = TennisScore.fromString(firstPlayerGames);
+                        TennisScore gamesScore = calculateNextGamesScore(currentScore);
+                        matchScore.updateFirstPlayerGames(gamesScore);
+
+                    }
                 }
             }
-        }
-        else if ("player2".equals(action)) {
 
-            if (secondPlayerPoints.equals(TennisScore.FORTY.toString()) &&
-                    firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
-                matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
-            }
-            else if (secondPlayerPoints.equals(TennisScore.FORTY.toString())) {
-                matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
-            }
-            else if (secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+            else if ("player2".equals(action)) {
+                if (secondPlayerPoints.equals(TennisScore.FORTY.toString()) &&
+                        firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                    matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
+                }
+                else if (secondPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                    matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
+                }
+                else if (secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                    if(secondPlayerGames.equals(TennisScore.FIVE.toString())) {
+                        TennisScore sets = TennisScore.fromString(secondPlayerSets);
+                        TennisScore newSetScore = calculateNextSetsScore(sets);
+                        //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
+                        matchScore.updateSecondPlayerSets(newSetScore);
+                        updateScoreAfterSetPoint(matchScore);
 
+                    }else{
+                        updateScoreAfterGamePoint(matchScore);
+                        TennisScore currentScore = TennisScore.fromString(secondPlayerGames);
+                        TennisScore gamesScore = calculateNextGamesScore(currentScore);
+                        matchScore.updateSecondPlayerGames(gamesScore);
 
-                if(secondPlayerGames.equals(TennisScore.FIVE.toString())) {
-                    TennisScore sets = TennisScore.fromString(secondPlayerSets);
-                    TennisScore newSetScore = calculateNextSetsScore(sets);
-                    //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
-                    matchScore.updateSecondPlayerSets(newSetScore);
-                    updateScoreAfterSet(matchScore);
-                }else{
-                    updateScoreAfterGame(matchScore);
-                    TennisScore currentScore = TennisScore.fromString(secondPlayerGames);
-                    TennisScore gamesScore = calculateNextGamesScore(currentScore);
-                    matchScore.updateSecondPlayerGames(gamesScore);
+                    }
                 }
             }
-        }
+
     }
 
 
@@ -132,26 +127,24 @@ public class MatchScoreCalculationService {
     private void updatePlayerGames(MatchScore matchScore, Player player, TennisScore newScore) {
         if (player == Player.FIRST) {
             matchScore.updateFirstPlayerGames(newScore);
-            updateScoreAfterGame(matchScore);
+            updateScoreAfterGamePoint(matchScore);
         } else {
             matchScore.updateSecondPlayerGames(newScore);
-            updateScoreAfterGame(matchScore);
+            updateScoreAfterGamePoint(matchScore);
         }
     }
 
     private void updatePlayerSets(MatchScore matchScore, Player player, TennisScore newScore) {
         if (player == Player.FIRST) {
             matchScore.updateFirstPlayerSets(newScore);
-            updateScoreAfterSet(matchScore);
+            updateScoreAfterSetPoint(matchScore);
         } else {
             matchScore.updateSecondPlayerSets(newScore);
-            updateScoreAfterSet(matchScore);
+            updateScoreAfterSetPoint(matchScore);
         }
     }
 
 
-
-    //TODO если отвяжусь от игроков (один общий метод, то тогда смогу сразу в этом методе обновлять кол-во очков (и в др. методах)
     private TennisScore calculateNextPointsScore(TennisScore currentScore){
         TennisScore newPointsScore =
 
@@ -191,12 +184,12 @@ public class MatchScoreCalculationService {
     }
 
 
-    private void updateScoreAfterGame(MatchScore matchScore){
+    private void updateScoreAfterGamePoint(MatchScore matchScore){
         matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
         matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
     }
 
-    private void updateScoreAfterSet(MatchScore matchScore){
+    private void updateScoreAfterSetPoint(MatchScore matchScore){
         matchScore.updateFirstPlayerGames(TennisScore.LOVE);
         matchScore.updateSecondPlayerGames(TennisScore.LOVE);
         matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
@@ -204,5 +197,17 @@ public class MatchScoreCalculationService {
     }
 
 
+    private boolean isAdvantageScenario(String firstPlayerPoints, String secondPlayerPoints){
+        boolean isDeuce = firstPlayerPoints.equals(TennisScore.FORTY.toString())
+                        && secondPlayerPoints.equals(TennisScore.FORTY.toString());
+
+        boolean isFirstPlayerAdvantage = firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())
+                                        && secondPlayerPoints.equals(TennisScore.FORTY.toString());
+
+        boolean isSecondPlayerAdvantage = firstPlayerPoints.equals(TennisScore.FORTY.toString())
+                                        && secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString());
+
+        return isDeuce || isFirstPlayerAdvantage || isSecondPlayerAdvantage;
+    }
 
 }

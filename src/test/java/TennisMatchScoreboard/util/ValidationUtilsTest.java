@@ -1,6 +1,5 @@
 package TennisMatchScoreboard.util;
 
-
 import TennisMatchScoreboard.exceptions.InvalidParameterException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,7 +11,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    class ValidationUtilsTest {
+class ValidationUtilsTest {
     private final static int REQUIRED_LENGTH_FOR_NAME = 20;
 
 
@@ -57,9 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
                 Arguments.of("D".repeat(20), "M".repeat(20))
         );
     }
-
-
-
 
 
     private static Stream<Arguments> checkSimilarNames() {
