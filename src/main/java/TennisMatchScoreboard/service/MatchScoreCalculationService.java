@@ -5,6 +5,7 @@ import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.enums.Player;
 import TennisMatchScoreboard.enums.TennisScore;
 
+
 public class MatchScoreCalculationService {
     private final OngoingMatch ongoingMatch;
     private static final String FIRST_PLAYER_ACTION = "player1";
@@ -16,32 +17,40 @@ public class MatchScoreCalculationService {
 
     public void gameScoreCalculation(String action) {
         MatchScore matchScore = ongoingMatch.getMatchScore();
-        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
-        String firstPlayerGames = matchScore.getFirstPlayerGames();
-        String firstPlayerSets = matchScore.getFirstPlayerSets();
 
-        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
-        String secondPlayerGames = matchScore.getSecondPlayerGames();
-        String secondPlayerSets = matchScore.getSecondPlayerSets();
-
-        if (isAdvantageScenario(firstPlayerPoints, secondPlayerPoints)) {
-            executeAdvantageLogic (matchScore, action, firstPlayerPoints, secondPlayerPoints,
-                    firstPlayerGames, secondPlayerGames,
-                    firstPlayerSets, secondPlayerSets);
+        if (isAdvantageScenario(matchScore.getFirstPlayerPoints(), matchScore.getSecondPlayerPoints())) {
+            if(FIRST_PLAYER_ACTION.equals(action)) {
+                executeAdvantageLogic (matchScore, action, Player.FIRST);
+            }else{
+                executeAdvantageLogic (matchScore, action, Player.SECOND);
+            }
         }
-
         else if (FIRST_PLAYER_ACTION.equals(action)) {
-            updatePlayerScore(matchScore, Player.FIRST, firstPlayerPoints, firstPlayerGames, firstPlayerSets);
+            updatePlayerScore(matchScore, Player.FIRST, matchScore.getFirstPlayerPoints(),
+                    matchScore.getFirstPlayerGames(), matchScore.getFirstPlayerSets());
         }
         else if(SECOND_PLAYER_ACTION.equals(action)) {
-            updatePlayerScore(matchScore, Player.SECOND, secondPlayerPoints, secondPlayerGames, secondPlayerSets);
+            updatePlayerScore(matchScore, Player.SECOND, matchScore.getSecondPlayerPoints(),
+                    matchScore.getSecondPlayerGames(), matchScore.getSecondPlayerSets());
         }
 
     }
 
-    private void updatePlayerScore(MatchScore matchScore, Player player, String currentPoints, String currentGames, String currentSets){
+    private void updatePlayerScore(MatchScore matchScore, Player player, String currentPoints, String currentGames, String currentSets) {
+        boolean checkAdditionalGame = matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
+                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
+        //TODO потом тут проверка tie-break или нет (7:5 или 6:6). Скорее всего переименую переменную ниже boolean
+
+        boolean isTieBreak = isAdditionalGameEnd(matchScore);
+
         if (currentPoints.equals(TennisScore.FORTY.toString())) {
-            if (currentGames.equals(TennisScore.FIVE.toString())) {
+            if (checkAdditionalGame) {
+                playAdditionalGame(matchScore, player);
+            }
+            else if(isTieBreak) {
+                handleSixFiveGameScore(matchScore, player);
+            }
+            else if (currentGames.equals(TennisScore.FIVE.toString())) {
                 TennisScore sets = TennisScore.fromString(currentSets);
                 TennisScore newSetScore = calculateNextSetsScore(sets);
                 updatePlayerSets(matchScore, player, newSetScore);
@@ -58,28 +67,39 @@ public class MatchScoreCalculationService {
     }
 
 
-    private void executeAdvantageLogic(MatchScore matchScore, String action, String firstPlayerPoints, String secondPlayerPoints,
-                            String firstPlayerGames, String secondPlayerGames, String firstPlayerSets, String secondPlayerSets) {
+    private void executeAdvantageLogic(MatchScore matchScore, String action, Player player) {
+        boolean checkAdditionalGame = matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
+                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
+        //TODO потом тут проверка tie-break или нет (7:5 или 6:6). Скорее всего переименую переменную ниже boolean
+
+        boolean isTieBreak = isAdditionalGameEnd(matchScore);
 
             if ("player1".equals(action)) {
-                if (firstPlayerPoints.equals(TennisScore.FORTY.toString()) &&
-                        secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                if (matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString()) &&
+                        matchScore.getSecondPlayerPoints().equals(TennisScore.ADVANTAGE.toString())) {
                     matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
                 }
-                else if (firstPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                else if (matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString())) {
                     matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
                 }
-                else if (firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
-                    if(firstPlayerGames.equals(TennisScore.FIVE.toString())) {
-                        TennisScore sets = TennisScore.fromString(firstPlayerSets);
+                else if (matchScore.getFirstPlayerPoints().equals(TennisScore.ADVANTAGE.toString())) {
+                    if (checkAdditionalGame) {
+                        playAdditionalGame(matchScore, player);
+                    }
+                    else if(isTieBreak) {
+                        handleSixFiveGameScore(matchScore, player);
+                    }
+                    else if(matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString())) {
+                        TennisScore sets = TennisScore.fromString(matchScore.getFirstPlayerSets());
                         TennisScore newSetScore = calculateNextSetsScore(sets);
                         //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
                         matchScore.updateFirstPlayerSets(newSetScore);
                         updateScoreAfterSetPoint(matchScore);
 
-                    }else{
+                    }
+                    else{
                         updateScoreAfterGamePoint(matchScore);
-                        TennisScore currentScore = TennisScore.fromString(firstPlayerGames);
+                        TennisScore currentScore = TennisScore.fromString(matchScore.getFirstPlayerGames());
                         TennisScore gamesScore = calculateNextGamesScore(currentScore);
                         matchScore.updateFirstPlayerGames(gamesScore);
 
@@ -88,24 +108,31 @@ public class MatchScoreCalculationService {
             }
 
             else if ("player2".equals(action)) {
-                if (secondPlayerPoints.equals(TennisScore.FORTY.toString()) &&
-                        firstPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
+                if (matchScore.getSecondPlayerPoints().equals(TennisScore.FORTY.toString()) &&
+                        matchScore.getFirstPlayerPoints().equals(TennisScore.ADVANTAGE.toString())) {
                     matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
                 }
-                else if (secondPlayerPoints.equals(TennisScore.FORTY.toString())) {
+                else if (matchScore.getSecondPlayerPoints().equals(TennisScore.FORTY.toString())) {
                     matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
                 }
-                else if (secondPlayerPoints.equals(TennisScore.ADVANTAGE.toString())) {
-                    if(secondPlayerGames.equals(TennisScore.FIVE.toString())) {
-                        TennisScore sets = TennisScore.fromString(secondPlayerSets);
+                else if (matchScore.getSecondPlayerPoints().equals(TennisScore.ADVANTAGE.toString())) {
+                    if (checkAdditionalGame) {
+                        playAdditionalGame(matchScore, player);
+                    }
+                    else if(isTieBreak) {
+                        handleSixFiveGameScore(matchScore, player);
+                    }
+                    else if(matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString())) {
+                        TennisScore sets = TennisScore.fromString(matchScore.getSecondPlayerSets());
                         TennisScore newSetScore = calculateNextSetsScore(sets);
                         //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
                         matchScore.updateSecondPlayerSets(newSetScore);
                         updateScoreAfterSetPoint(matchScore);
 
-                    }else{
+                    }
+                    else{
                         updateScoreAfterGamePoint(matchScore);
-                        TennisScore currentScore = TennisScore.fromString(secondPlayerGames);
+                        TennisScore currentScore = TennisScore.fromString(matchScore.getSecondPlayerGames());
                         TennisScore gamesScore = calculateNextGamesScore(currentScore);
                         matchScore.updateSecondPlayerGames(gamesScore);
 
@@ -209,5 +236,43 @@ public class MatchScoreCalculationService {
 
         return isDeuce || isFirstPlayerAdvantage || isSecondPlayerAdvantage;
     }
+
+    private void playAdditionalGame(MatchScore matchScore, Player player){
+        if(player == Player.FIRST) {
+            matchScore.updateFirstPlayerGames(TennisScore.SIX);
+            updateScoreAfterGamePoint(matchScore);
+        }else{
+            matchScore.updateSecondPlayerGames(TennisScore.SIX);
+            updateScoreAfterGamePoint(matchScore);
+        }
+    }
+
+    private boolean isAdditionalGameEnd(MatchScore matchScore){
+        boolean checkFirstPlayerAdditionalGameWin = matchScore.getFirstPlayerGames().equals(TennisScore.SIX.toString())
+                && matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
+
+        boolean checkSecondPlayerAdditionalGameWin = matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString())
+                && matchScore.getSecondPlayerGames().equals(TennisScore.SIX.toString());
+
+        return checkFirstPlayerAdditionalGameWin || checkSecondPlayerAdditionalGameWin;
+    }
+
+    private void handleSixFiveGameScore(MatchScore matchScore, Player player){
+
+        if(player == Player.FIRST){
+            String currentSets = matchScore.getFirstPlayerSets();
+            TennisScore sets = TennisScore.fromString(currentSets);
+            TennisScore newSetScore = calculateNextSetsScore(sets);
+            updatePlayerSets(matchScore, player, newSetScore);
+        }else{
+            String currentSets = matchScore.getSecondPlayerSets();
+            TennisScore sets = TennisScore.fromString(currentSets);
+            TennisScore newSetScore = calculateNextSetsScore(sets);
+            updatePlayerSets(matchScore, player, newSetScore);
+        }
+    }
+
+
+
 
 }

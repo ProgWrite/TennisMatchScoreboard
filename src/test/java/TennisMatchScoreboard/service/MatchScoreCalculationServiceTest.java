@@ -4,7 +4,6 @@ package TennisMatchScoreboard.service;
 import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.enums.TennisScore;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +53,7 @@ public class MatchScoreCalculationServiceTest {
 
 
     @Test
-    public void gameShouldContinue(){
+    public void shouldStartAdditionalGame(){
         matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
         matchScore.updateSecondPlayerPoints(TennisScore.THIRTY);
         matchScore.updateFirstPlayerGames(TennisScore.FIVE);
@@ -72,6 +71,27 @@ public class MatchScoreCalculationServiceTest {
                 ()->  assertThat(sets).isEqualTo("0")
         );
     }
+
+    @Test
+    public void shouldStartAdditionalGame2(){
+        matchScore.updateFirstPlayerPoints(TennisScore.THIRTY);
+        matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+        matchScore.updateFirstPlayerGames(TennisScore.FIVE);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String sets = matchScore.getFirstPlayerSets();
+
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("5"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("6"),
+                ()->  assertThat(sets).isEqualTo("0")
+        );
+    }
+
 
 
     @Test
@@ -114,5 +134,91 @@ public class MatchScoreCalculationServiceTest {
         calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
         assertThat(TennisScore.FORTY.toString()).isEqualTo(matchScore.getSecondPlayerPoints());
     }
+
+    @Test
+    public void testSixFiveGameScoreIfFirstPlayerWin(){
+        matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
+        matchScore.updateSecondPlayerPoints(TennisScore.THIRTY);
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String sets = matchScore.getFirstPlayerSets();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("0"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("0"),
+                ()->  assertThat(sets).isEqualTo("1")
+        );
+
+    }
+
+    @Test
+    public void testSixFiveGameScoreIfSecondPlayerWin(){
+        matchScore.updateFirstPlayerPoints(TennisScore.THIRTY);
+        matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+        matchScore.updateFirstPlayerGames(TennisScore.FIVE);
+        matchScore.updateSecondPlayerGames(TennisScore.SIX);
+
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String sets = matchScore.getSecondPlayerSets();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("0"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("0"),
+                ()->  assertThat(sets).isEqualTo("1")
+        );
+
+    }
+
+
+    @Test
+    public void testFiveFiveGameScoreAndAdvantageScenario(){
+        matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
+        matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+        matchScore.updateFirstPlayerGames(TennisScore.FIVE);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("6"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("5")
+        );
+
+    }
+
+    @Test
+    public void testSixFiveGameScoreAndAdvantageScenario(){
+        matchScore.updateFirstPlayerPoints(TennisScore.ADVANTAGE);
+        matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerSets = matchScore.getFirstPlayerSets();
+
+        assertAll(
+                ()-> assertThat(firstPlayerSets).isEqualTo("1"),
+                ()-> assertThat(firstPlayerGames).isEqualTo("0"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("0")
+        );
+
+    }
+
+
+
 
 }
