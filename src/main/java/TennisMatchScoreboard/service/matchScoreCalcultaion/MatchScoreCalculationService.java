@@ -1,4 +1,4 @@
-package TennisMatchScoreboard.service;
+package TennisMatchScoreboard.service.matchScoreCalcultaion;
 
 import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
@@ -12,6 +12,7 @@ public class MatchScoreCalculationService {
     private final OngoingMatch ongoingMatch;
     private static final String FIRST_PLAYER_ACTION = "player1";
     private static final String SECOND_PLAYER_ACTION = "player2";
+    private ScoreUpdater scoreUpdater = new ScoreUpdater();
 
     public MatchScoreCalculationService(OngoingMatch ongoingMatch) {
         this.ongoingMatch = ongoingMatch;
@@ -62,16 +63,16 @@ public class MatchScoreCalculationService {
             if (currentGames.equals(TennisScore.FIVE.toString())) {
                 TennisScore sets = TennisScore.fromString(currentSets);
                 TennisScore newSetScore = sets.nextSetsScore();
-                updatePlayerSets(matchScore, player, newSetScore);
+                scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
             } else {
                 TennisScore games = TennisScore.fromString(currentGames);
                 TennisScore newGamesScore = games.nextGamesScore();
-                updatePlayerGames(matchScore, player, newGamesScore);
+                scoreUpdater.updatePlayerGames(matchScore, player, newGamesScore);
             }
         } else {
             TennisScore points = TennisScore.fromString(currentPoints);
             TennisScore newPointsScore = points.nextPointsScore();
-            updatePlayerPoints(matchScore, player, newPointsScore);
+            scoreUpdater.updatePlayerPoints(matchScore,player, newPointsScore);
         }
     }
 
@@ -98,14 +99,12 @@ public class MatchScoreCalculationService {
                     TennisScore newSetScore = sets.nextSetsScore();
                     //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
                     matchScore.updateFirstPlayerSets(newSetScore);
-                    updateScoreAfterSetPoint(matchScore);
-
+                    scoreUpdater.updateScoreAfterSetPoint(matchScore);
                 } else {
-                    updateScoreAfterGamePoint(matchScore);
+                    scoreUpdater.updateScoreAfterGamePoint(matchScore);
                     TennisScore currentGames = TennisScore.fromString(matchScore.getFirstPlayerGames());
                     TennisScore gamesScore = currentGames.nextGamesScore();
                     matchScore.updateFirstPlayerGames(gamesScore);
-
                 }
             }
         } else if ("player2".equals(action)) {
@@ -126,10 +125,9 @@ public class MatchScoreCalculationService {
                     TennisScore newSetScore = sets.nextSetsScore();
                     //TODO строку ниже можно вынести в метод ниже если я придумаю как избавить от зависимости игроков
                     matchScore.updateSecondPlayerSets(newSetScore);
-                    updateScoreAfterSetPoint(matchScore);
-
+                    scoreUpdater.updateScoreAfterSetPoint(matchScore);
                 } else {
-                    updateScoreAfterGamePoint(matchScore);
+                    scoreUpdater.updateScoreAfterGamePoint(matchScore);
                     TennisScore currentGames = TennisScore.fromString(matchScore.getSecondPlayerGames());
                     TennisScore gamesScore = currentGames.nextGamesScore();
                     matchScore.updateSecondPlayerGames(gamesScore);
@@ -137,7 +135,6 @@ public class MatchScoreCalculationService {
                 }
             }
         }
-
     }
 
     private void executeTieBreakScenario(MatchScore matchScore, Player player, String currentSets) {
@@ -147,7 +144,7 @@ public class MatchScoreCalculationService {
         if( isTieBreakEnd(matchScore, player) && ongoingMatch.getGameState() == GameState.TIE_BREAK){
             TennisScore sets = TennisScore.fromString(currentSets);
             TennisScore newSetScore = sets.nextSetsScore();
-            updatePlayerSets(matchScore, player, newSetScore);
+            scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
             ongoingMatch.setGameState(GameState.PLAYING);
             return;
         }
@@ -160,57 +157,9 @@ public class MatchScoreCalculationService {
 
         TieBreak points = TieBreak.fromString(currentPoints);
         TieBreak nextPoint = points.nextPointsScore();
-        updatePlayerTieBreakPoints(matchScore, player, nextPoint);
+        scoreUpdater.updatePlayerTieBreakPoints(matchScore,player, nextPoint);
     }
 
-    private void updatePlayerPoints(MatchScore matchScore, Player player, TennisScore newScore) {
-        if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerPoints(newScore);
-        } else {
-            matchScore.updateSecondPlayerPoints(newScore);
-        }
-    }
-
-    private void updatePlayerTieBreakPoints(MatchScore matchScore, Player player, TieBreak newScore) {
-        if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerPoints(newScore);
-        }else{
-            matchScore.updateSecondPlayerPoints(newScore);
-        }
-    }
-
-
-    private void updatePlayerGames(MatchScore matchScore, Player player, TennisScore newScore) {
-        if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerGames(newScore);
-            updateScoreAfterGamePoint(matchScore);
-        } else {
-            matchScore.updateSecondPlayerGames(newScore);
-            updateScoreAfterGamePoint(matchScore);
-        }
-    }
-
-    private void updatePlayerSets(MatchScore matchScore, Player player, TennisScore newScore) {
-        if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerSets(newScore);
-            updateScoreAfterSetPoint(matchScore);
-        } else {
-            matchScore.updateSecondPlayerSets(newScore);
-            updateScoreAfterSetPoint(matchScore);
-        }
-    }
-
-    private void updateScoreAfterGamePoint(MatchScore matchScore) {
-        matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
-        matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
-    }
-
-    private void updateScoreAfterSetPoint(MatchScore matchScore) {
-        matchScore.updateFirstPlayerGames(TennisScore.LOVE);
-        matchScore.updateSecondPlayerGames(TennisScore.LOVE);
-        matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
-        matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
-    }
 
 
     private boolean isAdvantageScenario(String firstPlayerPoints, String secondPlayerPoints) {
@@ -229,10 +178,10 @@ public class MatchScoreCalculationService {
     private void playAdditionalGame(MatchScore matchScore, Player player) {
         if (player == Player.FIRST) {
             matchScore.updateFirstPlayerGames(TennisScore.SIX);
-            updateScoreAfterGamePoint(matchScore);
+            scoreUpdater.updateScoreAfterGamePoint(matchScore);
         } else {
             matchScore.updateSecondPlayerGames(TennisScore.SIX);
-            updateScoreAfterGamePoint(matchScore);
+            scoreUpdater.updateScoreAfterGamePoint(matchScore);
         }
     }
 
@@ -242,12 +191,12 @@ public class MatchScoreCalculationService {
             String currentSets = matchScore.getFirstPlayerSets();
             TennisScore sets = TennisScore.fromString(currentSets);
             TennisScore newSetScore = sets.nextSetsScore();
-            updatePlayerSets(matchScore, player, newSetScore);
+            scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
         } else {
             String currentSets = matchScore.getSecondPlayerSets();
             TennisScore sets = TennisScore.fromString(currentSets);
             TennisScore newSetScore = sets.nextSetsScore();
-            updatePlayerSets(matchScore, player, newSetScore);
+            scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
         }
     }
 
