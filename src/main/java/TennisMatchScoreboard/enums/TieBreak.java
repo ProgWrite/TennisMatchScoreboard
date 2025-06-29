@@ -37,8 +37,18 @@ public enum TieBreak {
         return score;
     }
 
-
-
+    public TieBreak nextPointsScore() {
+        return switch (this) {
+            case LOVE -> ONE;
+            case ONE -> TWO;
+            case TWO -> THREE;
+            case THREE -> FOUR;
+            case FOUR -> FIVE;
+            case FIVE -> SIX;
+            case SIX -> SEVEN;
+            default -> throw new IllegalStateException("No next points score after " + this);
+        };
+    }
 
 }
 

@@ -6,7 +6,6 @@ import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.enums.GameState;
 import TennisMatchScoreboard.enums.TennisScore;
 import TennisMatchScoreboard.enums.TieBreak;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +30,6 @@ public class MatchScoreCalculationServiceTest {
         ongoingMatch.setMatchScore(matchScore);
         calculationService = new MatchScoreCalculationService(ongoingMatch);
     }
-
-    @AfterEach
-    void tearDown() {
-        matchScore = null;
-        ongoingMatch = null;
-        calculationService = null;
-    }
-
 
     @Test
     public void firstPlayerShouldWinGamePoint(){

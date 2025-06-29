@@ -38,4 +38,33 @@ public enum TennisScore {
     }
 
 
+    public TennisScore nextPointsScore() {
+        return switch (this) {
+            case LOVE -> FIFTEEN;
+            case FIFTEEN -> THIRTY;
+            case THIRTY -> FORTY;
+            default -> throw new IllegalStateException("No next points score after " + this);
+        };
+    }
+
+    public TennisScore nextGamesScore() {
+        return switch (this) {
+            case LOVE -> ONE;
+            case ONE -> TWO;
+            case TWO -> THREE;
+            case THREE -> FOUR;
+            case FOUR -> FIVE;
+            case FIVE -> SIX;
+            default -> throw new IllegalStateException("No next games score after " + this);
+        };
+    }
+
+    public TennisScore nextSetsScore() {
+        return switch (this) {
+            case LOVE -> ONE;
+            case ONE -> TWO;
+            default -> throw new IllegalStateException("No next sets score after " + this);
+        };
+    }
+
 }
