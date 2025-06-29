@@ -3,7 +3,10 @@ package TennisMatchScoreboard.service;
 
 import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.enums.GameState;
 import TennisMatchScoreboard.enums.TennisScore;
+import TennisMatchScoreboard.enums.TieBreak;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,12 +21,22 @@ public class MatchScoreCalculationServiceTest {
     private static final String FIRST_PLAYER_ACTION = "player1";
     private static final String SECOND_PLAYER_ACTION = "player2";
 
+    // TODO отдельно все работает хорошо, но вместе не очень. После рефакторинга надо разобраться с этим
+
+
     @BeforeEach
     void setUp() {
         matchScore = new MatchScore();
         ongoingMatch = new OngoingMatch();
         ongoingMatch.setMatchScore(matchScore);
         calculationService = new MatchScoreCalculationService(ongoingMatch);
+    }
+
+    @AfterEach
+    void tearDown() {
+        matchScore = null;
+        ongoingMatch = null;
+        calculationService = null;
     }
 
 
@@ -42,7 +55,7 @@ public class MatchScoreCalculationServiceTest {
     public void secondPlayerShouldWinSetPoint(){
         matchScore.updateFirstPlayerPoints(TennisScore.FIFTEEN);
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
-        matchScore.updateFirstPlayerPoints(TennisScore.ONE);
+        matchScore.updateFirstPlayerGames(TennisScore.ONE);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
 
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
@@ -219,6 +232,117 @@ public class MatchScoreCalculationServiceTest {
     }
 
 
+    @Test
+    public void shouldStartTieBreak(){
 
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+        matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
+        matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
+        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("6"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("6"),
+                ()-> assertThat(firstPlayerPoints).isEqualTo("0"),
+                ()-> assertThat(secondPlayerPoints).isEqualTo("0")
+        );
+
+    }
+
+    @Test
+    public void shouldStartTieBreakAfterAdvantageScenario(){
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+        matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
+        matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
+
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
+        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("6"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("6"),
+                ()-> assertThat(firstPlayerPoints).isEqualTo("0"),
+                ()-> assertThat(secondPlayerPoints).isEqualTo("0")
+        );
+    }
+
+    @Test
+    public void shouldPlayTieBreakRules(){
+        ongoingMatch.setGameState(GameState.TIE_BREAK);
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.SIX);
+        matchScore.updateFirstPlayerPoints(TieBreak.LOVE);
+        matchScore.updateSecondPlayerPoints(TieBreak.LOVE);
+
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
+        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("6"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("6"),
+                ()-> assertThat(firstPlayerPoints).isEqualTo("1"),
+                ()-> assertThat(secondPlayerPoints).isEqualTo("0")
+        );
+    }
+
+    @Test
+    public void shouldEndTieBreak(){
+        ongoingMatch.setGameState(GameState.TIE_BREAK);
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.SIX);
+        matchScore.updateFirstPlayerPoints(TieBreak.SIX);
+        matchScore.updateSecondPlayerPoints(TieBreak.TWO);
+
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerSets = matchScore.getFirstPlayerSets();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("0"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("0"),
+                ()-> assertThat(firstPlayerSets).isEqualTo("1")
+        );
+    }
+
+    @Test
+    public void shouldContinueTieBreak(){
+        ongoingMatch.setGameState(GameState.TIE_BREAK);
+        matchScore.updateFirstPlayerGames(TennisScore.SIX);
+        matchScore.updateSecondPlayerGames(TennisScore.SIX);
+        matchScore.updateFirstPlayerPoints(TieBreak.SIX);
+        matchScore.updateSecondPlayerPoints(TieBreak.FIVE);
+
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
+
+        String firstPlayerGames = matchScore.getFirstPlayerGames();
+        String secondPlayerGames = matchScore.getSecondPlayerGames();
+        String firstPlayerPoints = matchScore.getFirstPlayerPoints();
+        String secondPlayerPoints = matchScore.getSecondPlayerPoints();
+
+        assertAll(
+                ()-> assertThat(firstPlayerGames).isEqualTo("6"),
+                ()-> assertThat(secondPlayerGames).isEqualTo("6"),
+                ()-> assertThat(firstPlayerPoints).isEqualTo("6"),
+                ()-> assertThat(secondPlayerPoints).isEqualTo("6")
+        );
+    }
 
 }

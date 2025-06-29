@@ -2,6 +2,7 @@ package TennisMatchScoreboard.entity;
 
 
 import TennisMatchScoreboard.enums.TennisScore;
+import TennisMatchScoreboard.enums.TieBreak;
 import lombok.*;
 
 @Getter
@@ -23,6 +24,10 @@ public class MatchScore {
         firstPlayerScore[2] = newScore.toString();
     }
 
+    public void updateFirstPlayerPoints(TieBreak newScore) {
+        firstPlayerScore[2] = newScore.toString();
+    }
+
     public String getSecondPlayerPoints() {
         return secondPlayerScore[2];
     }
@@ -30,6 +35,11 @@ public class MatchScore {
     public void updateSecondPlayerPoints(TennisScore newScore){
         secondPlayerScore[2] = newScore.toString();
     }
+
+    public void updateSecondPlayerPoints(TieBreak newScore){
+        secondPlayerScore[2] = newScore.toString();
+    }
+
 
     public String getFirstPlayerGames(){
         return firstPlayerScore[1];
