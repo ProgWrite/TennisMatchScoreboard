@@ -60,7 +60,28 @@ public class ScoreUpdater {
         matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
     }
 
+    public void updateScoreAfterAdditionalGame(MatchScore matchScore, Player player) {
+        if (player == Player.FIRST) {
+            matchScore.updateFirstPlayerGames(TennisScore.SIX);
+           updateScoreAfterGamePoint(matchScore);
+        } else {
+            matchScore.updateSecondPlayerGames(TennisScore.SIX);
+            updateScoreAfterGamePoint(matchScore);
+        }
+    }
 
-
+    public void handleSixFiveGameScore(MatchScore matchScore, Player player) {
+        if (player == Player.FIRST) {
+            String currentSets = matchScore.getFirstPlayerSets();
+            TennisScore sets = TennisScore.fromString(currentSets);
+            TennisScore newSetScore = sets.nextSetsScore();
+            updatePlayerSets(matchScore, player, newSetScore);
+        } else {
+            String currentSets = matchScore.getSecondPlayerSets();
+            TennisScore sets = TennisScore.fromString(currentSets);
+            TennisScore newSetScore = sets.nextSetsScore();
+            updatePlayerSets(matchScore, player, newSetScore);
+        }
+    }
 
 }

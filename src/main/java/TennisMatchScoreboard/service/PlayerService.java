@@ -15,9 +15,6 @@ import org.hibernate.SessionFactory;
 @RequiredArgsConstructor
 public class PlayerService {
 
-
-
-
     private final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
     //TODO может этот метод можно реализовать более изящно

@@ -44,7 +44,7 @@
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));
             MatchScoreCalculationService calculationService = new MatchScoreCalculationService(match);
 
-            calculationService.gameScoreCalculation(action);
+            calculationService.gameScoreCalculation2(action);
 
             //TODO потом будет логика до выигрыша
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);
