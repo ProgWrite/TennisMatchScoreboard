@@ -10,9 +10,11 @@ import TennisMatchScoreboard.service.matchScoreCalcultaion.ScoreUpdater;
 public class RegularGameScenario  implements GameScenario {
     private final ScoreUpdater scoreUpdater = new ScoreUpdater();
     private final OngoingMatch ongoingMatch;
+    private final GameAnalyzer gameAnalyzer;
 
-    public RegularGameScenario(OngoingMatch ongoingMatch) {
+    public RegularGameScenario(OngoingMatch ongoingMatch, GameAnalyzer gameAnalyzer) {
         this.ongoingMatch = ongoingMatch;
+        this.gameAnalyzer = gameAnalyzer;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class RegularGameScenario  implements GameScenario {
         }
 
         if (currentPoints.equals(TennisScore.FORTY.toString())) {
-            if (isAdditionalGame(matchScore)) {
+            if (gameAnalyzer.isAdditionalGame(matchScore)) {
                 scoreUpdater.updateScoreAfterAdditionalGame(matchScore, player);
                 return;
             }else if(gameAnalyzer.determineAdditionalGameEndOrStartTieBreak(matchScore,player)){
@@ -51,12 +53,6 @@ public class RegularGameScenario  implements GameScenario {
         } else {
             scoreUpdater.updatePlayerPoints(matchScore, player, currentPoints);
         }
-    }
-
-
-    private boolean isAdditionalGame(MatchScore matchScore) {
-        return matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
-                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
     }
 
 }

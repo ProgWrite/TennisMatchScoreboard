@@ -95,4 +95,9 @@ public class GameAnalyzer {
         return false;
     }
 
+    public boolean isAdditionalGame(MatchScore matchScore) {
+        return matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
+                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
+    }
+
 }

@@ -4,22 +4,23 @@ import TennisMatchScoreboard.entity.MatchScore;
 import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.enums.GameState;
 import TennisMatchScoreboard.enums.TennisScore;
+import TennisMatchScoreboard.service.matchScoreCalcultaion.GameAnalyzer;
 
 public class ScenarioFactory {
 
 
     public static GameScenario createScenario(OngoingMatch ongoingMatch, MatchScore matchScore, GameState gameState) {
+        GameAnalyzer gameAnalyzer = new GameAnalyzer(ongoingMatch);
+
         if(gameState == GameState.TIE_BREAK) {
-            return new TieBreakScenario(ongoingMatch);
+            return new TieBreakScenario(ongoingMatch, gameAnalyzer);
         }
         if(isAdvantageScenario(matchScore)) {
-            return new AdvantageScenario(ongoingMatch);
+            return new AdvantageScenario(ongoingMatch, gameAnalyzer);
         }
-        return new RegularGameScenario(ongoingMatch);
+        return new RegularGameScenario(ongoingMatch, gameAnalyzer);
     }
 
-
-    //TODO возможно сделать GameState ADVANTAGE. Подумать об этом
     private static boolean isAdvantageScenario(MatchScore matchScore) {
 
         boolean isDeuce = matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString())
