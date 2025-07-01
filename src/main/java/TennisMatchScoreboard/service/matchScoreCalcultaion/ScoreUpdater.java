@@ -84,13 +84,13 @@ public class ScoreUpdater {
     }
 
     public void handleSixFiveGameScore(MatchScore matchScore, Player player) {
+        String currentSets;
         if (player == Player.FIRST) {
-            String currentSets = matchScore.getFirstPlayerSets();
-            updatePlayerSets(matchScore, player, currentSets);
+            currentSets = matchScore.getFirstPlayerSets();
         } else {
-            String currentSets = matchScore.getSecondPlayerSets();
-            updatePlayerSets(matchScore, player, currentSets);
+            currentSets = matchScore.getSecondPlayerSets();
         }
+        updatePlayerSets(matchScore, player, currentSets);
     }
 
 }

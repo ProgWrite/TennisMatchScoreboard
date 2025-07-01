@@ -9,90 +9,8 @@ public class GameAnalyzer {
     private final ScoreUpdater scoreUpdater = new ScoreUpdater();
     private final OngoingMatch ongoingMatch;
 
-
     public GameAnalyzer(OngoingMatch ongoingMatch) {
         this.ongoingMatch = ongoingMatch;
-    }
-
-    public boolean determineAdditionalGameEndOrStartTieBreak(MatchScore matchScore, Player player) {
-        TieBreakInitializer tieBreakInitializer = new TieBreakInitializer(ongoingMatch);
-
-        boolean checkFirstPlayer = matchScore.getFirstPlayerGames().equals(TennisScore.SIX.toString())
-                && matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString())
-                && matchScore.getSecondPlayerPoints().equals(TennisScore.FORTY.toString());
-
-        boolean firstPlayerWinAdditionalGame = matchScore.getFirstPlayerGames().equals(TennisScore.SIX.toString())
-                && matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString())
-                && matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString());
-
-
-        boolean checkSecondPlayer = matchScore.getSecondPlayerGames().equals(TennisScore.SIX.toString())
-                && matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString())
-                && matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString());
-
-        boolean secondPlayerWinAdditionalGame = matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString())
-                && matchScore.getSecondPlayerGames().equals(TennisScore.SIX.toString())
-                && matchScore.getSecondPlayerPoints().equals(TennisScore.FORTY.toString());
-
-
-        boolean checkSixSixGameScore = matchScore.getFirstPlayerGames().equals(TennisScore.SIX.toString()) &&
-                matchScore.getSecondPlayerGames().equals(TennisScore.SIX.toString());
-
-        boolean firstPlayerTieBreakAndAdvantageScenario =
-                matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
-                        matchScore.getSecondPlayerGames().equals(TennisScore.SIX.toString()) &&
-                        matchScore.getFirstPlayerPoints().equals(TennisScore.ADVANTAGE.toString()) &&
-                        matchScore.getSecondPlayerPoints().equals(TennisScore.FORTY.toString());
-
-        boolean secondPlayerTieBreakAndAdvantageScenario =
-                matchScore.getFirstPlayerGames().equals(TennisScore.SIX.toString()) &&
-                        matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString()) &&
-                        matchScore.getFirstPlayerPoints().equals(TennisScore.FORTY.toString()) &&
-                        matchScore.getSecondPlayerPoints().equals(TennisScore.ADVANTAGE.toString());
-
-
-        if(checkFirstPlayer && player == Player.FIRST) {
-            scoreUpdater.handleSixFiveGameScore(matchScore, player);
-            return true;
-        }else if(checkFirstPlayer && player == Player.SECOND) {
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-      if(firstPlayerWinAdditionalGame && player == Player.FIRST) {
-            scoreUpdater.handleSixFiveGameScore(matchScore, player);
-            return true;
-        }else if(secondPlayerWinAdditionalGame && player == Player.SECOND) {
-            scoreUpdater.handleSixFiveGameScore(matchScore, player);
-            return true;
-        }
-
-        if(checkSecondPlayer && player == Player.SECOND) {
-            scoreUpdater.handleSixFiveGameScore(matchScore, player);
-            return true;
-        }else if(checkFirstPlayer && player == Player.FIRST) {
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-
-        if (checkSecondPlayer && player == Player.FIRST){
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-
-        if(checkSixSixGameScore){
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-
-        if(firstPlayerTieBreakAndAdvantageScenario){
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-        if(secondPlayerTieBreakAndAdvantageScenario){
-            tieBreakInitializer.startTieBreakRules(matchScore);
-            return true;
-        }
-        return false;
     }
 
     public boolean isAdditionalGame(MatchScore matchScore) {
@@ -100,4 +18,90 @@ public class GameAnalyzer {
                 matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
     }
 
+    public boolean determineAdditionalGameEndOrStartTieBreak(MatchScore matchScore, Player player) {
+        if(isTieBreak(matchScore, player)){
+            return true;
+        }
+        return isSixFiveGameScore(matchScore, player);
+    }
+
+    private boolean isTieBreak(MatchScore matchScore, Player player){
+        TieBreakInitializer tieBreakInitializer = new TieBreakInitializer(ongoingMatch);
+        TennisScore firstPlayerGames = getPlayerGames(matchScore, Player.FIRST);
+        TennisScore secondPlayerGames = getPlayerGames(matchScore, Player.SECOND);
+        TennisScore firstPlayerPoints = getPlayerPoints(matchScore, Player.FIRST);
+        TennisScore secondPlayerPoints = getPlayerPoints(matchScore, Player.SECOND);
+
+        if (firstPlayerGames == TennisScore.SIX && secondPlayerGames == TennisScore.SIX) {
+            tieBreakInitializer.startTieBreakRules(matchScore);
+            return true;
+        }
+        if (player == Player.FIRST && firstPlayerGames == TennisScore.FIVE && secondPlayerGames == TennisScore.SIX
+                && firstPlayerPoints == TennisScore.ADVANTAGE && secondPlayerPoints == TennisScore.FORTY) {
+            tieBreakInitializer.startTieBreakRules(matchScore);
+            return true;
+        }
+
+        if (player == Player.SECOND && secondPlayerGames == TennisScore.FIVE && firstPlayerGames == TennisScore.SIX
+                && secondPlayerPoints == TennisScore.ADVANTAGE && firstPlayerPoints == TennisScore.FORTY) {
+            tieBreakInitializer.startTieBreakRules(matchScore);
+            return true;
+        }
+
+        if (player == Player.SECOND && firstPlayerGames == TennisScore.SIX && secondPlayerGames == TennisScore.FIVE
+                && secondPlayerPoints == TennisScore.FORTY) {
+            tieBreakInitializer.startTieBreakRules(matchScore);
+            return true;
+        }
+
+        if (player == Player.FIRST && secondPlayerGames == TennisScore.SIX && firstPlayerGames == TennisScore.FIVE
+                && firstPlayerPoints == TennisScore.FORTY) {
+            tieBreakInitializer.startTieBreakRules(matchScore);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSixFiveGameScore(MatchScore matchScore, Player player) {
+        TennisScore firstPlayerGames = getPlayerGames(matchScore, Player.FIRST);
+        TennisScore secondPlayerGames = getPlayerGames(matchScore, Player.SECOND);
+        TennisScore firstPlayerPoints = getPlayerPoints(matchScore, Player.FIRST);
+        TennisScore secondPlayerPoints = getPlayerPoints(matchScore, Player.SECOND);
+
+        if (player == Player.FIRST && firstPlayerGames == TennisScore.SIX && secondPlayerGames == TennisScore.FIVE) {
+            if (firstPlayerPoints == TennisScore.FORTY || firstPlayerPoints == TennisScore.ADVANTAGE) {
+                scoreUpdater.handleSixFiveGameScore(matchScore, player);
+                return true;
+            }
+        }
+
+        if (player == Player.SECOND && secondPlayerGames == TennisScore.SIX && firstPlayerGames == TennisScore.FIVE) {
+            if (secondPlayerPoints == TennisScore.FORTY || secondPlayerPoints == TennisScore.ADVANTAGE) {
+                scoreUpdater.handleSixFiveGameScore(matchScore, player);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private TennisScore getPlayerPoints(MatchScore matchScore, Player player) {
+        return TennisScore.fromString(
+                player == Player.FIRST
+                        ? matchScore.getFirstPlayerPoints()
+                        : matchScore.getSecondPlayerPoints()
+        );
+    }
+
+    private TennisScore getPlayerGames(MatchScore matchScore, Player player) {
+        return TennisScore.fromString(
+                player == Player.FIRST
+                        ? matchScore.getFirstPlayerGames()
+                        : matchScore.getSecondPlayerGames()
+        );
+    }
+
 }
+
+
+
+
