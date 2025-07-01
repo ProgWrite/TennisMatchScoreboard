@@ -12,14 +12,18 @@ public class ScoreUpdater {
 
     }
 
-    public void updatePlayerPoints(MatchScore matchScore, Player player, TennisScore newScore) {
-        if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerPoints(newScore);
-        } else {
-            matchScore.updateSecondPlayerPoints(newScore);
+    public void updatePlayerPoints(MatchScore matchScore, Player player, String currentPoints) {
+        TennisScore points = TennisScore.fromString(currentPoints);
+        TennisScore newPointsScore = points.nextPointsScore();
+
+        if(player == Player.FIRST){
+            matchScore.updateFirstPlayerPoints(newPointsScore);
+        }else{
+            matchScore.updateSecondPlayerPoints(newPointsScore);
         }
     }
 
+    //TODO тоже сделай как аналогичные 3 метода
     public void updatePlayerTieBreakPoints(MatchScore matchScore, Player player, TieBreak newScore) {
         if (player == Player.FIRST) {
             matchScore.updateFirstPlayerPoints(newScore);
@@ -28,22 +32,28 @@ public class ScoreUpdater {
         }
     }
 
-    public void updatePlayerGames(MatchScore matchScore, Player player, TennisScore newScore) {
+    public void updatePlayerGames(MatchScore matchScore, Player player, String currentGames) {
+        TennisScore games = TennisScore.fromString(currentGames);
+        TennisScore newGamesScore = games.nextGamesScore();
+
         if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerGames(newScore);
+            matchScore.updateFirstPlayerGames(newGamesScore);
             updateScoreAfterGamePoint(matchScore);
         } else {
-            matchScore.updateSecondPlayerGames(newScore);
+            matchScore.updateSecondPlayerGames(newGamesScore);
             updateScoreAfterGamePoint(matchScore);
         }
     }
 
-    public void updatePlayerSets(MatchScore matchScore, Player player, TennisScore newScore) {
+    public void updatePlayerSets(MatchScore matchScore, Player player, String currentSets) {
+        TennisScore sets = TennisScore.fromString(currentSets);
+        TennisScore newSetScore = sets.nextSetsScore();
+
         if (player == Player.FIRST) {
-            matchScore.updateFirstPlayerSets(newScore);
+            matchScore.updateFirstPlayerSets(newSetScore);
             updateScoreAfterSetPoint(matchScore);
         } else {
-            matchScore.updateSecondPlayerSets(newScore);
+            matchScore.updateSecondPlayerSets(newSetScore);
             updateScoreAfterSetPoint(matchScore);
         }
     }
@@ -73,14 +83,10 @@ public class ScoreUpdater {
     public void handleSixFiveGameScore(MatchScore matchScore, Player player) {
         if (player == Player.FIRST) {
             String currentSets = matchScore.getFirstPlayerSets();
-            TennisScore sets = TennisScore.fromString(currentSets);
-            TennisScore newSetScore = sets.nextSetsScore();
-            updatePlayerSets(matchScore, player, newSetScore);
+            updatePlayerSets(matchScore, player, currentSets);
         } else {
             String currentSets = matchScore.getSecondPlayerSets();
-            TennisScore sets = TennisScore.fromString(currentSets);
-            TennisScore newSetScore = sets.nextSetsScore();
-            updatePlayerSets(matchScore, player, newSetScore);
+            updatePlayerSets(matchScore, player, currentSets);
         }
     }
 

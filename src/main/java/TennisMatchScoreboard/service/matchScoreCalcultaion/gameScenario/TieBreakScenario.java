@@ -38,9 +38,7 @@ public class TieBreakScenario implements GameScenario {
 
         //TODO  не факт что этот код нужен && gameState == GameState.TIE_BREAK
         if(isTieBreakEnd(matchScore, player)){
-            TennisScore sets = TennisScore.fromString(currentSets);
-            TennisScore newSetScore = sets.nextSetsScore();
-            scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
+            scoreUpdater.updatePlayerSets(matchScore, player, currentSets);
             ongoingMatch.setGameState(GameState.PLAYING);
             return;
         }

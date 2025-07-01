@@ -4,7 +4,6 @@
     import TennisMatchScoreboard.entity.OngoingMatch;
     import TennisMatchScoreboard.service.matchScoreCalcultaion.MatchScoreCalculationService;
     import TennisMatchScoreboard.service.OngoingMatchService;
-    import TennisMatchScoreboard.service.matchScoreCalcultaion.ScoreUpdater;
     import TennisMatchScoreboard.util.JspHelper;
     import jakarta.servlet.ServletException;
     import jakarta.servlet.annotation.WebServlet;
@@ -44,7 +43,7 @@
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));
             MatchScoreCalculationService calculationService = new MatchScoreCalculationService(match);
 
-            calculationService.gameScoreCalculation2(action);
+            calculationService.gameScoreCalculation(action);
 
             //TODO потом будет логика до выигрыша
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);

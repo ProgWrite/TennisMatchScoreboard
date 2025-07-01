@@ -36,32 +36,27 @@ public class RegularGameScenario  implements GameScenario {
             currentSets = matchScore.getSecondPlayerSets();
         }
 
-
-        boolean checkAdditionalGame = matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
-                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
-        //TODO потом тут проверка tie-break или нет (7:5 или 6:6). Скорее всего переименую переменную ниже boolean
-
         if (currentPoints.equals(TennisScore.FORTY.toString())) {
-            if (checkAdditionalGame) {
+            if (isAdditionalGame(matchScore)) {
                 scoreUpdater.updateScoreAfterAdditionalGame(matchScore, player);
                 return;
             }else if(gameAnalyzer.determineAdditionalGameEndOrStartTieBreak(matchScore,player)){
                 return;
             }
             if (currentGames.equals(TennisScore.FIVE.toString())) {
-                TennisScore sets = TennisScore.fromString(currentSets);
-                TennisScore newSetScore = sets.nextSetsScore();
-                scoreUpdater.updatePlayerSets(matchScore, player, newSetScore);
+                scoreUpdater.updatePlayerSets(matchScore, player, currentSets);
             } else {
-                TennisScore games = TennisScore.fromString(currentGames);
-                TennisScore newGamesScore = games.nextGamesScore();
-                scoreUpdater.updatePlayerGames(matchScore, player, newGamesScore);
+                scoreUpdater.updatePlayerGames(matchScore, player, currentGames);
             }
         } else {
-            TennisScore points = TennisScore.fromString(currentPoints);
-            TennisScore newPointsScore = points.nextPointsScore();
-            scoreUpdater.updatePlayerPoints(matchScore,player, newPointsScore);
+            scoreUpdater.updatePlayerPoints(matchScore, player, currentPoints);
         }
+    }
+
+
+    private boolean isAdditionalGame(MatchScore matchScore) {
+        return matchScore.getFirstPlayerGames().equals(TennisScore.FIVE.toString()) &&
+                matchScore.getSecondPlayerGames().equals(TennisScore.FIVE.toString());
     }
 
 }

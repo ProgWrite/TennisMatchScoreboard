@@ -58,8 +58,7 @@ public class GameAnalyzer {
             tieBreakInitializer.startTieBreakRules(matchScore);
             return true;
         }
-
-        if(firstPlayerWinAdditionalGame && player == Player.FIRST) {
+      if(firstPlayerWinAdditionalGame && player == Player.FIRST) {
             scoreUpdater.handleSixFiveGameScore(matchScore, player);
             return true;
         }else if(secondPlayerWinAdditionalGame && player == Player.SECOND) {
