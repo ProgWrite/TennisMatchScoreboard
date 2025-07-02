@@ -7,6 +7,4 @@ import TennisMatchScoreboard.enums.Player;
 
 public interface GameScenario {
     void handle(MatchScore matchScore, Player player);
-
-
 }

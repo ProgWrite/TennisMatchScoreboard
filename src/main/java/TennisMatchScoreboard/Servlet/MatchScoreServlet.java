@@ -2,6 +2,7 @@
 
 
     import TennisMatchScoreboard.entity.OngoingMatch;
+    import TennisMatchScoreboard.enums.GameState;
     import TennisMatchScoreboard.service.matchScoreCalcultaion.MatchScoreCalculationService;
     import TennisMatchScoreboard.service.OngoingMatchService;
     import TennisMatchScoreboard.util.JspHelper;
@@ -33,6 +34,14 @@
             req.setAttribute("firstPlayerName", firstPlayerName);
             req.setAttribute("secondPlayerName", secondPlayerName);
             req.setAttribute("matchScore", match.getMatchScore());
+            // TODO нормально ли что в сервлете устанавливается столько атрибутов?
+            session.setAttribute("firstPlayerSets", match.getMatchScore().getFirstPlayerSets());
+            session.setAttribute("secondPlayerSets", match.getMatchScore().getSecondPlayerSets());
+            session.setAttribute("firstPlayerGames", match.getMatchScore().getFirstPlayerGames());
+            session.setAttribute("secondPlayerGames", match.getMatchScore().getSecondPlayerGames());
+            session.setAttribute("firstPlayerPoints", match.getMatchScore().getFirstPlayerPoints());
+            session.setAttribute("secondPlayerPoints", match.getMatchScore().getSecondPlayerPoints());
+
             req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
         }
 
@@ -42,10 +51,14 @@
             String action = req.getParameter("action");
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));
             MatchScoreCalculationService calculationService = new MatchScoreCalculationService(match);
-
             calculationService.gameScoreCalculation(action);
 
-            //TODO потом будет логика до выигрыша
-            resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);
+            if(match.getGameState() == GameState.GAME_OVER){
+                resp.sendRedirect(req.getContextPath() + "game-over");
+            }else{
+                resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);
+            }
+
         }
+
     }
