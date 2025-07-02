@@ -1,7 +1,5 @@
 package TennisMatchScoreboard.Servlet;
 
-
-import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.entity.Player;
 import TennisMatchScoreboard.service.OngoingMatchService;
 import TennisMatchScoreboard.service.PlayerService;

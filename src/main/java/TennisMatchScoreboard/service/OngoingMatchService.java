@@ -21,7 +21,6 @@ public class OngoingMatchService {
         return INSTANCE;
     }
 
-
     public UUID createNewMatch(Player firstPlayer, Player secondPlayer) {
         UUID uuid = UUID.randomUUID();
         OngoingMatch match = new OngoingMatch(uuid, firstPlayer, secondPlayer);
@@ -33,7 +32,8 @@ public class OngoingMatchService {
         return ongoingMatches.get(uuid);
     }
 
-    //TODO Метод с логикой завершения матча (удалить из коллекции и запихать в БД)
-
+    public void removeMatch(UUID uuid) {
+        ongoingMatches.remove(uuid);
+    }
 
 }

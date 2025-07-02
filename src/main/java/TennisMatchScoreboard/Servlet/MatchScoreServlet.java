@@ -1,8 +1,10 @@
     package TennisMatchScoreboard.Servlet;
 
 
+    import TennisMatchScoreboard.entity.Match;
     import TennisMatchScoreboard.entity.OngoingMatch;
     import TennisMatchScoreboard.enums.GameState;
+    import TennisMatchScoreboard.service.FinishedMatchesPersistenceService;
     import TennisMatchScoreboard.service.matchScoreCalcultaion.MatchScoreCalculationService;
     import TennisMatchScoreboard.service.OngoingMatchService;
     import TennisMatchScoreboard.util.JspHelper;
@@ -19,7 +21,6 @@
     @WebServlet("/match-score")
     public class MatchScoreServlet extends HttpServlet {
         OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
-
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -54,6 +55,14 @@
             calculationService.gameScoreCalculation(action);
 
             if(match.getGameState() == GameState.GAME_OVER){
+                FinishedMatchesPersistenceService finishedMatchService = new FinishedMatchesPersistenceService(match);
+                // TODO КОСТЫЛЬ! Этот код временный и виннер должен определяться иначе
+                Match savedMatch = Match.builder()
+                        .player1(match.getFirstPlayer())
+                        .player2(match.getSecondPlayer())
+                        .winner(match.getFirstPlayer())
+                        .build();
+                finishedMatchService.persistFinishedMatch(savedMatch);
                 resp.sendRedirect(req.getContextPath() + "game-over");
             }else{
                 resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);
