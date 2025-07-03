@@ -7,11 +7,13 @@ import TennisMatchScoreboard.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FinishedMatchesPersistenceService {
     private final OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
-    private final OngoingMatch ongoingMatch;
+    private OngoingMatch ongoingMatch;
     private final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
 
@@ -19,6 +21,11 @@ public class FinishedMatchesPersistenceService {
         this.ongoingMatch = ongoingMatch;
     }
 
+    public FinishedMatchesPersistenceService(){
+
+    }
+
+    // TODO мб код для Hibernate можно будет убрать чтобы избежать дублирования) И не создавать MatchDao в каждом методе, а делать так как было в 3 проекте (один экзмепляр)!
     public void persistFinishedMatch(Match match) {
         UUID uuid = ongoingMatch.getUuid();
         ongoingMatchService.removeMatch(uuid);
@@ -41,6 +48,65 @@ public class FinishedMatchesPersistenceService {
         } finally {
             session.close();
         }
+    }
+
+    //TODO мб тут будет Dto
+    public List<Match> getFinishedMatches() {
+        Session session = sessionFactory.openSession();
+
+        try {
+            session.beginTransaction();
+            MatchDao matchDao = new MatchDao(session);
+
+            List<Match> matches = matchDao.findAll();
+            session.flush();
+            session.getTransaction().commit();
+            return matches;
+
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            throw new RuntimeException("Transaction failed", e);
+        } finally {
+            session.close();
+        }
+    }
+
+
+    public List<Match> findFinishedMatchesByPlayerName(String playerName) {
+        Session session = sessionFactory.openSession();
+
+        try {
+            session.beginTransaction();
+            MatchDao matchDao = new MatchDao(session);
+
+            List<Match> matches = matchDao.findAll();
+            List<Match> matchesWithPlayer = findMatchesByPlayerName(matches, playerName);
+
+            session.flush();
+            session.getTransaction().commit();
+            return matchesWithPlayer;
+
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+            throw new RuntimeException("Transaction failed", e);
+        } finally {
+            session.close();
+        }
+    }
+
+    private List<Match> findMatchesByPlayerName(List<Match> matches, String playerName) {
+        List<Match> matchesWithPlayerName = new ArrayList<Match>();
+        for (Match match : matches) {
+            if (match.getPlayer1().getName().equals(playerName)
+                    || match.getPlayer2().getName().equals(playerName)) {
+                matchesWithPlayerName.add(match);
+            }
+        }
+        return matchesWithPlayerName;
     }
 
 }

@@ -24,9 +24,11 @@ public class PlayerService {
         try {
             session.beginTransaction();
 
-            if(isPlayerExists(session, player.getName())) {
+            Player existingPlayer = findPlayerByName(session, player.getName());
+
+            if(existingPlayer != null) {
                 session.getTransaction().commit();
-                return player;
+                return existingPlayer;
             }
 
             PlayerDao playerDao = new PlayerDao(session);
@@ -45,12 +47,12 @@ public class PlayerService {
         }
     }
 
-
-    private boolean isPlayerExists(Session session, String name) {
+    // TODO почитай об этом подробнее!
+    private Player findPlayerByName(Session session, String name) {
         return session.createQuery("FROM Player WHERE name = :name", Player.class)
                 .setParameter("name", name)
                 .setMaxResults(1)
-                .uniqueResult() != null;
+                .uniqueResult();
     }
 
 }
