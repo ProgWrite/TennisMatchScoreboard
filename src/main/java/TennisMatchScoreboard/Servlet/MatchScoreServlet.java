@@ -56,6 +56,7 @@
 
             if(match.getGameState() == GameState.GAME_OVER){
                 FinishedMatchesPersistenceService finishedMatchService = new FinishedMatchesPersistenceService(match);
+
                 // TODO КОСТЫЛЬ! Этот код временный и виннер должен определяться иначе
                 Match savedMatch = Match.builder()
                         .player1(match.getFirstPlayer())
