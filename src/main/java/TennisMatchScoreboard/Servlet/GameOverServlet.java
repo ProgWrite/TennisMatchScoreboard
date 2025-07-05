@@ -1,7 +1,6 @@
 package TennisMatchScoreboard.Servlet;
 
 
-import TennisMatchScoreboard.service.OngoingMatchService;
 import TennisMatchScoreboard.util.JspHelper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

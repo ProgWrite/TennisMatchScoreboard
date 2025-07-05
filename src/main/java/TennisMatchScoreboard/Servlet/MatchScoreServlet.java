@@ -2,8 +2,10 @@
 
 
     import TennisMatchScoreboard.entity.Match;
+    import TennisMatchScoreboard.entity.MatchScore;
     import TennisMatchScoreboard.entity.OngoingMatch;
     import TennisMatchScoreboard.enums.GameState;
+    import TennisMatchScoreboard.enums.TennisScore;
     import TennisMatchScoreboard.service.FinishedMatchesPersistenceService;
     import TennisMatchScoreboard.service.matchScoreCalcultaion.MatchScoreCalculationService;
     import TennisMatchScoreboard.service.OngoingMatchService;
@@ -52,6 +54,7 @@
             String action = req.getParameter("action");
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));
             MatchScoreCalculationService calculationService = new MatchScoreCalculationService(match);
+
             calculationService.gameScoreCalculation(action);
 
             if(match.getGameState() == GameState.GAME_OVER){
@@ -64,6 +67,9 @@
                         .winner(match.getFirstPlayer())
                         .build();
                 finishedMatchService.persistFinishedMatch(savedMatch);
+
+                HttpSession session = req.getSession();
+                session.setAttribute("matchScore", match.getMatchScore());
                 resp.sendRedirect(req.getContextPath() + "game-over");
             }else{
                 resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid);

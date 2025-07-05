@@ -33,9 +33,10 @@ public class MatchScoreCalculationServiceTest {
     public void firstPlayerShouldWinGamePoint(){
         matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
         matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
-        String games = matchScore.getFirstPlayerGames();
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
+
+        String games = matchScore.getFirstPlayerGames();
         assertThat(games).isEqualTo("1");
     }
 
@@ -46,6 +47,7 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         matchScore.updateFirstPlayerGames(TennisScore.ONE);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
         String sets = matchScore.getSecondPlayerSets();
 
@@ -59,11 +61,11 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.THIRTY);
         matchScore.updateFirstPlayerGames(TennisScore.FIVE);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
         calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
         String sets = matchScore.getFirstPlayerSets();
-
 
         assertAll(
                 ()-> assertThat(firstPlayerGames).isEqualTo("6"),
@@ -78,12 +80,12 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         matchScore.updateFirstPlayerGames(TennisScore.FIVE);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
+
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
         String sets = matchScore.getFirstPlayerSets();
-
 
         assertAll(
                 ()-> assertThat(firstPlayerGames).isEqualTo("5"),
@@ -99,7 +101,7 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         String games = matchScore.getFirstPlayerGames();
-        ongoingMatch.setMatchScore(matchScore);
+
         calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         assertAll(
@@ -131,7 +133,7 @@ public class MatchScoreCalculationServiceTest {
     public void secondPlayerScoreShouldChangeToForty() {
         matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
         matchScore.updateSecondPlayerPoints(TennisScore.ADVANTAGE);
-        ongoingMatch.setMatchScore(matchScore);
+
         calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         assertThat(TennisScore.FORTY.toString()).isEqualTo(matchScore.getSecondPlayerPoints());
@@ -143,8 +145,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.THIRTY);
         matchScore.updateFirstPlayerGames(TennisScore.SIX);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -164,8 +166,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         matchScore.updateFirstPlayerGames(TennisScore.FIVE);
         matchScore.updateSecondPlayerGames(TennisScore.SIX);
-        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -186,8 +188,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         matchScore.updateFirstPlayerGames(TennisScore.FIVE);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -205,8 +207,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
         matchScore.updateFirstPlayerGames(TennisScore.SIX);
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -228,6 +230,7 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerGames(TennisScore.FIVE);
         matchScore.updateFirstPlayerPoints(TennisScore.LOVE);
         matchScore.updateSecondPlayerPoints(TennisScore.FORTY);
+
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
@@ -251,6 +254,7 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerGames(TennisScore.SIX);
         matchScore.updateFirstPlayerPoints(TennisScore.FORTY);
         matchScore.updateSecondPlayerPoints(TennisScore.LOVE);
+
         calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
@@ -278,7 +282,6 @@ public class MatchScoreCalculationServiceTest {
 
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
-
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
         String firstPlayerPoints = matchScore.getFirstPlayerPoints();
@@ -299,8 +302,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerGames(TennisScore.SIX);
         matchScore.updateFirstPlayerPoints(TieBreak.LOVE);
         matchScore.updateSecondPlayerPoints(TieBreak.LOVE);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -322,8 +325,8 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerGames(TennisScore.SIX);
         matchScore.updateFirstPlayerPoints(TieBreak.SIX);
         matchScore.updateSecondPlayerPoints(TieBreak.TWO);
-        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
+        calculationService.gameScoreCalculation(FIRST_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();
         String secondPlayerGames = matchScore.getSecondPlayerGames();
@@ -343,6 +346,7 @@ public class MatchScoreCalculationServiceTest {
         matchScore.updateSecondPlayerGames(TennisScore.SIX);
         matchScore.updateFirstPlayerPoints(TieBreak.SIX);
         matchScore.updateSecondPlayerPoints(TieBreak.FIVE);
+
         calculationService.gameScoreCalculation(SECOND_PLAYER_ACTION);
 
         String firstPlayerGames = matchScore.getFirstPlayerGames();

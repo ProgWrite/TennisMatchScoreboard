@@ -34,9 +34,9 @@ class ValidationUtilsTest {
     @ParameterizedTest
     @MethodSource("namesIsBlank")
     void shouldThrowNameCannotBeBlank(String name1, String name2) {
-
         var exception = assertThrows(InvalidParameterException.class,
                 () -> ValidationUtils.validate(name1, name2));
+
         assertThat(exception.getMessage()).isEqualTo("Name cannot be blank");
     }
 
@@ -44,6 +44,7 @@ class ValidationUtilsTest {
     void shouldThrowRequiredLengthMessage(){
         var exception = assertThrows(InvalidParameterException.class,
                 () -> ValidationUtils.validate("123456789012345678901", "ура"));
+
         assertThat(exception.getMessage()).isEqualTo("Name cannot exceed " + REQUIRED_LENGTH_FOR_NAME + " characters");
     }
 

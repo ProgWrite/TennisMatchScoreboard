@@ -3,12 +3,7 @@
 
 <c:set var="firstPlayerName" value="${sessionScope.firstPlayerName}" />
 <c:set var="secondPlayerName" value="${sessionScope.secondPlayerName}" />
-<c:set var="firstPlayerSets" value="${sessionScope.firstPlayerSets}" />
-<c:set var="secondPlayerSets" value="${sessionScope.secondPlayerSets}" />
-<c:set var="firstPlayerGames" value="${sessionScope.firstPlayerGames}" />
-<c:set var="secondPlayerGames" value="${sessionScope.secondPlayerGames}" />
-<c:set var="firstPlayerPoints" value="${sessionScope.firstPlayerPoints}" />
-<c:set var="secondPlayerPoints" value="${sessionScope.secondPlayerPoints}" />
+<c:set var="matchScore" value="${sessionScope.matchScore}" />
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -67,15 +62,15 @@
         <tbody>
         <tr>
             <td>${firstPlayerName}</td>
-            <td>${firstPlayerSets}</td>
-            <td>${firstPlayerGames}</td>
-            <td>${firstPlayerPoints}</td>
+            <td>${matchScore.firstPlayerSets}</td>
+            <td>${matchScore.firstPlayerGames}</td>
+            <td>${matchScore.firstPlayerPoints}</td>
         </tr>
         <tr>
             <td>${secondPlayerName}</td>
-            <td>${secondPlayerSets}</td>
-            <td>${secondPlayerGames}</td>
-            <td>${secondPlayerPoints}</td>
+            <td>${matchScore.secondPlayerSets}</td>
+            <td>${matchScore.secondPlayerGames}</td>
+            <td>${matchScore.secondPlayerPoints}</td>
         </tr>
         </tbody>
     </table>

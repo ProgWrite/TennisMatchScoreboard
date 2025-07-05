@@ -11,9 +11,6 @@ public class ScenarioFactory {
 
     public static GameScenario createScenario(OngoingMatch ongoingMatch, MatchScore matchScore, GameState gameState) {
         GameAnalyzer gameAnalyzer = new GameAnalyzer(ongoingMatch);
-        if(isGameEnd(ongoingMatch, matchScore)){
-            return new GameOverScenario(ongoingMatch);
-        }
         if(gameState == GameState.TIE_BREAK) {
             return new TieBreakScenario(ongoingMatch, gameAnalyzer);
         }
@@ -22,13 +19,6 @@ public class ScenarioFactory {
         }
         return new RegularGameScenario(ongoingMatch, gameAnalyzer);
     }
-
-    private static boolean isGameEnd(OngoingMatch ongoingMatch, MatchScore matchScore) {
-        return matchScore.getFirstPlayerSets().equals(TennisScore.TWO.toString())
-                || matchScore.getSecondPlayerSets().equals(TennisScore.TWO.toString());
-    }
-
-
 
     private static boolean isAdvantageScenario(MatchScore matchScore) {
 
