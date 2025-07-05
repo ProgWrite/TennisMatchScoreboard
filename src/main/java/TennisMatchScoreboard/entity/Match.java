@@ -19,11 +19,11 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne (cascade = {CascadeType.MERGE})
     @JoinColumn(name = "player1_id", referencedColumnName = "id")
     private Player player1;
 
-    @ManyToOne
+    @ManyToOne (cascade = {CascadeType.MERGE})
     @JoinColumn(name = "player2_id", referencedColumnName = "id")
     private Player player2;
 

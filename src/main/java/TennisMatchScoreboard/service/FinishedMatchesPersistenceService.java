@@ -18,7 +18,6 @@ public class FinishedMatchesPersistenceService {
     private OngoingMatch ongoingMatch;
     private final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
-
     public FinishedMatchesPersistenceService(OngoingMatch ongoingMatch) {
         this.ongoingMatch = ongoingMatch;
     }
@@ -36,10 +35,11 @@ public class FinishedMatchesPersistenceService {
 
         try {
             session.beginTransaction();
-            MatchDao matchDao = new MatchDao(session);
-            matchDao.create(match);
 
+            preparePlayers(session, match);
+            session.merge(match);
             session.flush();
+
             session.getTransaction().commit();
 
         } catch (Exception e) {
@@ -125,6 +125,24 @@ public class FinishedMatchesPersistenceService {
             }
         }
         return matchesWithPlayerName;
+    }
+
+    private void preparePlayers(Session session, Match match) {
+        match.setPlayer1(preparePlayer(session, match.getPlayer1()));
+        match.setPlayer2(preparePlayer(session, match.getPlayer2()));
+    }
+
+    private Player preparePlayer(Session session, Player player) {
+        if (player.getId() != null) {
+            return player;
+        }
+        // TODO разбери этот код
+        Player existing = session.createQuery(
+                        "FROM Player WHERE name = :name", Player.class)
+                .setParameter("name", player.getName())
+                .uniqueResult();
+
+        return existing != null ? existing : player;
     }
 
 }

@@ -2,7 +2,6 @@ package TennisMatchScoreboard.Servlet;
 
 import TennisMatchScoreboard.entity.Player;
 import TennisMatchScoreboard.service.OngoingMatchService;
-import TennisMatchScoreboard.service.PlayerService;
 import TennisMatchScoreboard.util.JspHelper;
 import TennisMatchScoreboard.util.ValidationUtils;
 import jakarta.servlet.ServletException;
@@ -19,9 +18,7 @@ import java.util.UUID;
 @WebServlet("/new-match")
 public class NewMatchServlet extends HttpServlet {
 
-    private final PlayerService playerService = new PlayerService();
     private final OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
-
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -40,15 +37,11 @@ public class NewMatchServlet extends HttpServlet {
             session.setAttribute("firstPlayerName", firstPlayerName);
             session.setAttribute("secondPlayerName", secondPlayerName);
 
-            Player first = new Player(firstPlayerName);
-            Player second = new Player(secondPlayerName);
+            Player firstPlayer = new Player(firstPlayerName);
+            Player secondPlayer = new Player(secondPlayerName);
 
             //TODO думаю это можно сделать более изящно! Мб тут будут исключения
-            Player firstPlayer = playerService.create(first);
-            Player secondPlayer = playerService.create(second);
             UUID uuid = ongoingMatchService.createNewMatch(firstPlayer,secondPlayer);
-
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid.toString());
-
     }
 }
