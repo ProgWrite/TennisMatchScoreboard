@@ -2,10 +2,8 @@
 
 
     import TennisMatchScoreboard.entity.Match;
-    import TennisMatchScoreboard.entity.MatchScore;
     import TennisMatchScoreboard.entity.OngoingMatch;
     import TennisMatchScoreboard.enums.GameState;
-    import TennisMatchScoreboard.enums.TennisScore;
     import TennisMatchScoreboard.service.FinishedMatchesPersistenceService;
     import TennisMatchScoreboard.service.matchScoreCalcultaion.MatchScoreCalculationService;
     import TennisMatchScoreboard.service.OngoingMatchService;
@@ -59,14 +57,8 @@
 
             if(match.getGameState() == GameState.GAME_OVER){
                 FinishedMatchesPersistenceService finishedMatchService = new FinishedMatchesPersistenceService(match);
-
-                // TODO КОСТЫЛЬ! Этот код временный и виннер должен определяться иначе
-                Match savedMatch = Match.builder()
-                        .player1(match.getFirstPlayer())
-                        .player2(match.getSecondPlayer())
-                        .winner(match.getFirstPlayer())
-                        .build();
-                finishedMatchService.persistFinishedMatch(savedMatch);
+                Match finishedMatch = finishedMatchService.saveFinishedMatch(match);
+                finishedMatchService.persistFinishedMatch(finishedMatch);
 
                 HttpSession session = req.getSession();
                 session.setAttribute("matchScore", match.getMatchScore());

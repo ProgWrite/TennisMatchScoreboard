@@ -3,6 +3,8 @@ package TennisMatchScoreboard.service;
 import TennisMatchScoreboard.dao.MatchDao;
 import TennisMatchScoreboard.entity.Match;
 import TennisMatchScoreboard.entity.OngoingMatch;
+import TennisMatchScoreboard.entity.Player;
+import TennisMatchScoreboard.enums.TennisScore;
 import TennisMatchScoreboard.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -73,7 +75,6 @@ public class FinishedMatchesPersistenceService {
         }
     }
 
-
     public List<Match> findFinishedMatchesByPlayerName(String playerName) {
         Session session = sessionFactory.openSession();
 
@@ -95,6 +96,23 @@ public class FinishedMatchesPersistenceService {
             throw new RuntimeException("Transaction failed", e);
         } finally {
             session.close();
+        }
+    }
+
+    public Match saveFinishedMatch(OngoingMatch ongoingMatch) {
+        Match savedMatch = Match.builder()
+                .player1(ongoingMatch.getFirstPlayer())
+                .player2(ongoingMatch.getSecondPlayer())
+                .winner(determineWinner(ongoingMatch))
+                .build();
+        return savedMatch;
+    }
+
+    private Player determineWinner(OngoingMatch match){
+        if(match.getMatchScore().getFirstPlayerSets().equals(TennisScore.TWO.toString())){
+            return match.getFirstPlayer();
+        }else{
+            return match.getSecondPlayer();
         }
     }
 
