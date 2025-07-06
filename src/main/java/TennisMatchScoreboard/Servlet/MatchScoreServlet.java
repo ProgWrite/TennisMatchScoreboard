@@ -35,19 +35,11 @@
             req.setAttribute("firstPlayerName", firstPlayerName);
             req.setAttribute("secondPlayerName", secondPlayerName);
             req.setAttribute("matchScore", match.getMatchScore());
-            // TODO нормально ли что в сервлете устанавливается столько атрибутов?
-            session.setAttribute("firstPlayerSets", match.getMatchScore().getFirstPlayerSets());
-            session.setAttribute("secondPlayerSets", match.getMatchScore().getSecondPlayerSets());
-            session.setAttribute("firstPlayerGames", match.getMatchScore().getFirstPlayerGames());
-            session.setAttribute("secondPlayerGames", match.getMatchScore().getSecondPlayerGames());
-            session.setAttribute("firstPlayerPoints", match.getMatchScore().getFirstPlayerPoints());
-            session.setAttribute("secondPlayerPoints", match.getMatchScore().getSecondPlayerPoints());
-
             req.getRequestDispatcher(JspHelper.getPath("match-score")).forward(req, resp);
         }
 
         @Override
-        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
             String uuid = req.getParameter("uuid");
             String action = req.getParameter("action");
             OngoingMatch match = ongoingMatchService.getMatch(UUID.fromString(uuid));

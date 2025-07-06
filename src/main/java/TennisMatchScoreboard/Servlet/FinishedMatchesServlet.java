@@ -16,8 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 @WebServlet("/matches")
 public class FinishedMatchesServlet extends HttpServlet {
-    private static final int MATCHES_PER_PAGE = 2;
-
+    private static final int MATCHES_PER_PAGE = 5;
 
     FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService();
 
@@ -29,7 +28,6 @@ public class FinishedMatchesServlet extends HttpServlet {
         PaginationDto<Match> pagination = persistenceService.getPaginationPages(
                 playerName, currentPage, MATCHES_PER_PAGE);
 
-        // TODO надо разобраться когда можно req.setAttribute, а когда нельзя. Может тут и не надо создавать сессию
 
         req.setAttribute("matches", pagination.getMatches());
         req.setAttribute("currentPage", pagination.getCurrentPage());
@@ -39,7 +37,7 @@ public class FinishedMatchesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String name = req.getParameter("name");
         resp.sendRedirect(req.getContextPath() + "/matches?page=1&filter_by_player_name=" +
                 URLEncoder.encode(name, StandardCharsets.UTF_8));

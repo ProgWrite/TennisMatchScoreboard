@@ -162,7 +162,6 @@
     <div class="tennis-icon"></div>
     <h1>Игра окончена!</h1>
 
-    <!-- Можно добавить баннер с победителем -->
     <div class="winner-banner">
         Победитель: ${matchScore.firstPlayerSets > matchScore.secondPlayerSets ? firstPlayerName : secondPlayerName}
     </div>

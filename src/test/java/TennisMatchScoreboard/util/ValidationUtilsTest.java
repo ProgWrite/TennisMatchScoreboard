@@ -28,7 +28,7 @@ class ValidationUtilsTest {
         var exception = assertThrows(InvalidParameterException.class,
                 () -> ValidationUtils.validate(name1, name2));
 
-        assertThat(exception.getMessage()).isEqualTo("Player names must be different");
+        assertThat(exception.getMessage()).isEqualTo("Имена игроков должны быть разными");
     }
 
     @ParameterizedTest
@@ -37,7 +37,7 @@ class ValidationUtilsTest {
         var exception = assertThrows(InvalidParameterException.class,
                 () -> ValidationUtils.validate(name1, name2));
 
-        assertThat(exception.getMessage()).isEqualTo("Name cannot be blank");
+        assertThat(exception.getMessage()).isEqualTo("Имя не может быть пустым");
     }
 
     @Test
@@ -45,7 +45,7 @@ class ValidationUtilsTest {
         var exception = assertThrows(InvalidParameterException.class,
                 () -> ValidationUtils.validate("123456789012345678901", "ура"));
 
-        assertThat(exception.getMessage()).isEqualTo("Name cannot exceed " + REQUIRED_LENGTH_FOR_NAME + " characters");
+        assertThat(exception.getMessage()).isEqualTo("Имя не может превышать " + REQUIRED_LENGTH_FOR_NAME + " символов");
     }
 
 

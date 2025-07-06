@@ -8,7 +8,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-public class MatchDao extends BaseDao<Long, Match> {
+public class MatchDao extends BaseDao<Match> {
 
     private final static MatchDao INSTANCE = new MatchDao();
 

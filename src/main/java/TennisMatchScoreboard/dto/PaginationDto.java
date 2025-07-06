@@ -1,8 +1,6 @@
 package TennisMatchScoreboard.dto;
 
-
 import lombok.*;
-
 import java.util.List;
 
 @AllArgsConstructor

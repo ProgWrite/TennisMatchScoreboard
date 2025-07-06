@@ -1,7 +1,7 @@
 package TennisMatchScoreboard.enums;
 
 
-//TODO возможно разделю на 3 енама (подумаю) + TieBreak
+
 public enum TennisScore {
     LOVE("0"),
     FIFTEEN("15"),

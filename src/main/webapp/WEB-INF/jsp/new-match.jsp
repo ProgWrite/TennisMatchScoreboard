@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -145,6 +146,24 @@
         .player-input {
             flex: 1;
         }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .global-error {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff6b6b;
+        }
+
     </style>
 </head>
 <body>
@@ -156,13 +175,29 @@
         <div class="player-inputs">
             <div class="form-group player-input">
                 <label for="name">Игрок 1</label>
-                <input type="text" name="name" id="name" placeholder="Введите имя" required>
+                <input type="text" name="name" id="name"
+                       placeholder="Введите имя"
+                       required
+                       value="${not empty name ? name : param.name}">
+                <c:if test="${not empty errors.name}">
+                    <div class="error-message">${errors.name}</div>
+                </c:if>
             </div>
             <div class="form-group player-input">
                 <label for="name2">Игрок 2</label>
-                <input type="text" name="name2" id="name2" placeholder="Введите имя" required>
+                <input type="text" name="name2" id="name2"
+                       placeholder="Введите имя"
+                       required
+                       value="${not empty name2 ? name2 : param.name2}">
+                <c:if test="${not empty errors.name2}">
+                    <div class="error-message">${errors.name2}</div>
+                </c:if>
             </div>
         </div>
+
+        <c:if test="${not empty error}">
+            <div class="global-error">${error}</div>
+        </c:if>
 
         <button type="submit" class="btn">Начать матч</button>
     </form>

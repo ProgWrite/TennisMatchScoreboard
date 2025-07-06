@@ -23,7 +23,6 @@ public class ScoreUpdater {
         }
     }
 
-    //TODO тоже сделай как аналогичные 3 метода
     public void updatePlayerTieBreakPoints(MatchScore matchScore, Player player, String currentPoints) {
         TieBreak points = TieBreak.fromString(currentPoints);
         TieBreak nextPointsScore = points.nextPointsScore();

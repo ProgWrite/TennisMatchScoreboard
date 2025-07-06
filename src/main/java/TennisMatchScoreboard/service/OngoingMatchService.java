@@ -22,11 +22,11 @@ public class OngoingMatchService {
         return INSTANCE;
     }
 
-    public UUID createNewMatch(Player firstPlayer, Player secondPlayer) {
+    public OngoingMatch createNewMatch(Player firstPlayer, Player secondPlayer) {
         UUID uuid = UUID.randomUUID();
         OngoingMatch match = new OngoingMatch(uuid, firstPlayer, secondPlayer);
         ongoingMatches.put(uuid, match);
-        return uuid;
+        return match;
     }
 
     public OngoingMatch getMatch(UUID uuid) {

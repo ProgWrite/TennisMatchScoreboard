@@ -1,17 +1,13 @@
 package TennisMatchScoreboard.dto;
 
-
 import lombok.*;
-
 import java.util.Objects;
 
-//TODO УБЕРИ ЭТУ АННОТАЦИЮ
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
-
 public class ErrorResponseDto {
 
     private Integer errorCode;

@@ -1,6 +1,9 @@
 package TennisMatchScoreboard.Servlet;
 
+import TennisMatchScoreboard.dto.CurrentMatchDto;
+import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.entity.Player;
+import TennisMatchScoreboard.exceptions.InvalidParameterException;
 import TennisMatchScoreboard.service.OngoingMatchService;
 import TennisMatchScoreboard.util.JspHelper;
 import TennisMatchScoreboard.util.ValidationUtils;
@@ -25,23 +28,33 @@ public class NewMatchServlet extends HttpServlet {
         request.getRequestDispatcher(JspHelper.getPath("new-match")).forward(request, response);
     }
 
-    //TODO в дальнейшем здесь будет Dto
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        CurrentMatchDto currentMatch = new CurrentMatchDto(
+                req.getParameter("name"),
+                req.getParameter("name2")
+        );
 
-            String firstPlayerName = req.getParameter("name");
-            String secondPlayerName = req.getParameter("name2");
-            ValidationUtils.validate(firstPlayerName, secondPlayerName);
+        try {
+            ValidationUtils.validate(currentMatch.firstPlayerName(), currentMatch.secondPlayerName());
 
             HttpSession session = req.getSession();
-            session.setAttribute("firstPlayerName", firstPlayerName);
-            session.setAttribute("secondPlayerName", secondPlayerName);
+            session.setAttribute("firstPlayerName", currentMatch.firstPlayerName());
+            session.setAttribute("secondPlayerName", currentMatch.secondPlayerName());
 
-            Player firstPlayer = new Player(firstPlayerName);
-            Player secondPlayer = new Player(secondPlayerName);
+            Player firstPlayer = new Player(currentMatch.firstPlayerName());
+            Player secondPlayer = new Player(currentMatch.secondPlayerName());
 
-            //TODO думаю это можно сделать более изящно! Мб тут будут исключения
-            UUID uuid = ongoingMatchService.createNewMatch(firstPlayer,secondPlayer);
+            OngoingMatch match = ongoingMatchService.createNewMatch(firstPlayer, secondPlayer);
+            UUID uuid = match.getUuid();
             resp.sendRedirect(req.getContextPath() + "/match-score?uuid=" + uuid.toString());
+        } catch (InvalidParameterException e) {
+            req.setAttribute("error", e.getMessage());
+            req.setAttribute("name", currentMatch.firstPlayerName());
+            req.setAttribute("name2", currentMatch.secondPlayerName());
+            req.getRequestDispatcher(JspHelper.getPath("new-match")).forward(req, resp);
+
+        }
     }
 }

@@ -1,11 +1,10 @@
 package TennisMatchScoreboard.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
-public interface Dao<K extends Serializable,E> {
+public interface Dao<E> {
 
     List<E> findAll();
 
-    public void update(E entity);
+   void update(E entity);
 }

@@ -29,7 +29,7 @@ public class ExceptionHandlingFilter extends HttpFilter {
         try{
             chain.doFilter(req, res);
         }
-        catch (InvalidParameterException e){
+        catch (InvalidParameterException | MatchProcessingException e){
             writeErrorResponse(res, SC_BAD_REQUEST , e);
         }
         catch (DataBaseException e){
@@ -37,9 +37,6 @@ public class ExceptionHandlingFilter extends HttpFilter {
         }
         catch (NotFoundException e){
             writeErrorResponse(res, SC_NOT_FOUND, e);
-        }
-        catch (MatchProcessingException e){
-            writeErrorResponse(res, SC_BAD_REQUEST , e);
         }
     }
 

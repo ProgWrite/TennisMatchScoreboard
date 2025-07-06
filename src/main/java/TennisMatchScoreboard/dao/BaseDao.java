@@ -9,12 +9,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import java.io.Serializable;
 import java.util.List;
 
 
 @RequiredArgsConstructor
-public class BaseDao<K extends Serializable, E> implements Dao<K,E> {
+public class BaseDao<E> implements Dao<E> {
 
     private final Class<E> entityClass;
     protected final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
