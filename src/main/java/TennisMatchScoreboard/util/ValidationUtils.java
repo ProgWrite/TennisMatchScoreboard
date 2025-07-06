@@ -2,8 +2,6 @@ package TennisMatchScoreboard.util;
 
 import TennisMatchScoreboard.exceptions.InvalidParameterException;
 
-//TODO возможно нужна будет уникальная валидация на имя, либо проверка что такое имя есть в БД (на уровне БД).
-//TODO возможно валдиация будет по другому через аннотации (смотрел урок у dmdev)
 
 public class ValidationUtils {
     private final static int REQUIRED_LENGTH_FOR_NAME = 20;

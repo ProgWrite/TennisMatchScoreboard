@@ -2,6 +2,7 @@ package TennisMatchScoreboard.service;
 
 import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.entity.Player;
+import TennisMatchScoreboard.exceptions.NotFoundException;
 import lombok.Getter;
 
 import java.util.Map;
@@ -29,7 +30,11 @@ public class OngoingMatchService {
     }
 
     public OngoingMatch getMatch(UUID uuid) {
-        return ongoingMatches.get(uuid);
+        OngoingMatch match = ongoingMatches.get(uuid);
+        if(match == null) {
+            throw new NotFoundException("Match not found with UUID: " + uuid);
+        }
+        return match;
     }
 
     public void removeMatch(UUID uuid) {

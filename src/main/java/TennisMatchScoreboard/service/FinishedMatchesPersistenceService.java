@@ -1,12 +1,13 @@
 package TennisMatchScoreboard.service;
 
 import TennisMatchScoreboard.dao.MatchDao;
+import TennisMatchScoreboard.dto.PaginationDto;
 import TennisMatchScoreboard.entity.Match;
 import TennisMatchScoreboard.entity.OngoingMatch;
 import TennisMatchScoreboard.entity.Player;
 import TennisMatchScoreboard.enums.TennisScore;
+import TennisMatchScoreboard.exceptions.MatchProcessingException;
 import TennisMatchScoreboard.util.HibernateUtil;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.UUID;
 
 public class FinishedMatchesPersistenceService {
     private final OngoingMatchService ongoingMatchService = OngoingMatchService.getInstance();
-    private OngoingMatch ongoingMatch;
+    private OngoingMatch ongoingMatch;;
+    private final MatchDao matchDao = MatchDao.getInstance();
     private final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
     public FinishedMatchesPersistenceService(OngoingMatch ongoingMatch) {
@@ -26,86 +28,55 @@ public class FinishedMatchesPersistenceService {
 
     }
 
-    // TODO мб код для Hibernate можно будет убрать чтобы избежать дублирования) И не создавать MatchDao в каждом методе, а делать так как было в 3 проекте (один экзмепляр)!
     public void persistFinishedMatch(Match match) {
         UUID uuid = ongoingMatch.getUuid();
         ongoingMatchService.removeMatch(uuid);
-
-        Session session = sessionFactory.openSession();
-
-        try {
-            session.beginTransaction();
-
-            preparePlayers(session, match);
-            session.merge(match);
-            session.flush();
-
-            session.getTransaction().commit();
-
-        } catch (Exception e) {
-            if (session.getTransaction() != null) {
-                session.getTransaction().rollback();
-            }
-            throw new RuntimeException("Transaction failed", e);
-        } finally {
-            session.close();
-        }
+        matchDao.update(match);
     }
+
 
     //TODO мб тут будет Dto
     public List<Match> getFinishedMatches() {
-        Session session = sessionFactory.openSession();
-
-        try {
-            session.beginTransaction();
-            MatchDao matchDao = new MatchDao(session);
-
-            List<Match> matches = matchDao.findAll();
-            session.flush();
-            session.getTransaction().commit();
-            return matches;
-
-        } catch (Exception e) {
-            if (session.getTransaction() != null) {
-                session.getTransaction().rollback();
-            }
-            throw new RuntimeException("Transaction failed", e);
-        } finally {
-            session.close();
-        }
+        return matchDao.findAll();
     }
 
     public List<Match> findFinishedMatchesByPlayerName(String playerName) {
-        Session session = sessionFactory.openSession();
-
-        try {
-            session.beginTransaction();
-            MatchDao matchDao = new MatchDao(session);
-
             List<Match> matches = matchDao.findAll();
-            List<Match> matchesWithPlayer = findMatchesByPlayerName(matches, playerName);
-
-            session.flush();
-            session.getTransaction().commit();
-            return matchesWithPlayer;
-
-        } catch (Exception e) {
-            if (session.getTransaction() != null) {
-                session.getTransaction().rollback();
-            }
-            throw new RuntimeException("Transaction failed", e);
-        } finally {
-            session.close();
-        }
+        return findMatchesByPlayerName(matches, playerName);
     }
 
     public Match saveFinishedMatch(OngoingMatch ongoingMatch) {
-        Match savedMatch = Match.builder()
-                .player1(ongoingMatch.getFirstPlayer())
-                .player2(ongoingMatch.getSecondPlayer())
-                .winner(determineWinner(ongoingMatch))
-                .build();
-        return savedMatch;
+        try {
+            return Match.builder()
+                    .player1(ongoingMatch.getFirstPlayer())
+                    .player2(ongoingMatch.getSecondPlayer())
+                    .winner(determineWinner(ongoingMatch))
+                    .build();
+        }catch (Exception e){
+            throw new MatchProcessingException("Failed to save finished match" + e.getMessage());
+        }
+
+    }
+
+    public PaginationDto<Match> getPaginationPages(String player, int page, int size){
+        List<Match> matches = (player != null && !player.isEmpty())
+                ? findFinishedMatchesByPlayerName(player)
+                : getFinishedMatches();
+
+        int totalItems = matches.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+
+        page = Math.max(1, Math.min(page, totalPages));
+
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, totalItems);
+
+        return new PaginationDto<>(
+                matches.subList(fromIndex, toIndex),
+                page,
+                totalPages,
+                totalItems
+        );
     }
 
     private Player determineWinner(OngoingMatch match){
@@ -125,24 +96,6 @@ public class FinishedMatchesPersistenceService {
             }
         }
         return matchesWithPlayerName;
-    }
-
-    private void preparePlayers(Session session, Match match) {
-        match.setPlayer1(preparePlayer(session, match.getPlayer1()));
-        match.setPlayer2(preparePlayer(session, match.getPlayer2()));
-    }
-
-    private Player preparePlayer(Session session, Player player) {
-        if (player.getId() != null) {
-            return player;
-        }
-        // TODO разбери этот код
-        Player existing = session.createQuery(
-                        "FROM Player WHERE name = :name", Player.class)
-                .setParameter("name", player.getName())
-                .uniqueResult();
-
-        return existing != null ? existing : player;
     }
 
 }

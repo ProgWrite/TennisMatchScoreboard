@@ -1,53 +1,53 @@
 package TennisMatchScoreboard.dao;
 
+import TennisMatchScoreboard.exceptions.DataBaseException;
+import TennisMatchScoreboard.util.HibernateUtil;
 import jakarta.persistence.criteria.CriteriaQuery;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
-//TODO если какие-то методы не понадобятся, тогда не используй их! Убери и в классах наследниках.
-//TODO возможно нужно будет переименовать это в Repository!!!
 
 @RequiredArgsConstructor
 public class BaseDao<K extends Serializable, E> implements Dao<K,E> {
 
     private final Class<E> entityClass;
-    private final Session session;
+    protected final SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
 
 
     @Override
-    public E create(E entity) {
-        session.persist(entity);
-        return entity;
+    public List<E> findAll() {
+        Session session = sessionFactory.getCurrentSession();
+        Transaction transaction = null;
+
+        try{
+            transaction = session.beginTransaction();
+
+            CriteriaQuery<E> criteria = session.getCriteriaBuilder().createQuery(entityClass);
+            criteria.from(entityClass);
+            List<E> catalog = session.createQuery(criteria).getResultList();
+            session.getTransaction().commit();
+            return catalog;
+
+        }catch (HibernateException e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new DataBaseException(String.format(
+                    "Database operation failed. Method: findAll(), Entity: %s, Error: %s",
+                    entityClass.getName(),
+                    e.getMessage()
+            ));
+        }
     }
 
     @Override
     public void update(E entity) {
-        session.merge(entity);
-    }
 
-    @Override
-    public Optional<E> findById(K id) {
-        return Optional.ofNullable(session.find(entityClass, id));
-    }
-
-    @Override
-    public List<E> findAll() {
-        CriteriaQuery<E> criteria = session.getCriteriaBuilder().createQuery(entityClass);
-        criteria.from(entityClass);
-        return session.createQuery(criteria)
-                .getResultList();
-    }
-
-    @Override
-    public void delete(K id) {
-        E entity = session.find(entityClass, id);
-        if (entity != null) {
-            session.remove(entity);
-            session.flush();
-        }
     }
 }

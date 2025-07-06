@@ -60,7 +60,6 @@
                 Match finishedMatch = finishedMatchService.saveFinishedMatch(match);
                 finishedMatchService.persistFinishedMatch(finishedMatch);
 
-
                 HttpSession session = req.getSession();
                 session.setAttribute("matchScore", match.getMatchScore());
                 resp.sendRedirect(req.getContextPath() + "game-over");
