@@ -1,9 +1,10 @@
 <%@ page import="TennisMatchScoreboard.service.OngoingMatchService" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:set var="firstPlayerName" value="${sessionScope.firstPlayerName}" />
-<c:set var="secondPlayerName" value="${sessionScope.secondPlayerName}" />
+<%
+    String firstPlayerName = (String) session.getAttribute("firstPlayerName");
+    String secondPlayerName = (String) session.getAttribute("secondPlayerName");
+%>
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -179,13 +180,13 @@
         </thead>
         <tbody>
         <tr>
-            <td class="player-name player1-name">${firstPlayerName}</td>
+            <td class="player-name player1-name"><%= firstPlayerName %></td>
             <td>${matchScore.firstPlayerSets}</td>
             <td>${matchScore.firstPlayerGames}</td>
             <td>${matchScore.firstPlayerPoints}</td>
         </tr>
         <tr>
-            <td class="player-name player2-name">${secondPlayerName}</td>
+            <td class="player-name player2-name"><%= secondPlayerName %></td>
             <td>${matchScore.secondPlayerSets}</td>
             <td>${matchScore.secondPlayerGames}</td>
             <td>${matchScore.secondPlayerPoints}</td>
@@ -197,19 +198,24 @@
         <form method="post" action="match-score?uuid=${param.uuid}">
             <input type="hidden" name="action" value="player1">
             <button type="submit" class="point-button player1-button">
-                ${firstPlayerName} выиграл очко
+                <%= firstPlayerName %> выиграл очко
             </button>
         </form>
 
         <form method="post" action="match-score?uuid=${param.uuid}">
             <input type="hidden" name="action" value="player2">
             <button type="submit" class="point-button player2-button">
-                ${secondPlayerName} выиграл очко
+                <%= secondPlayerName %> выиграл очко
             </button>
         </form>
     </div>
 
     <a href="new-match" class="back-link">← Вернуться к созданию матча</a>
 </div>
+
+<script>
+    // Здесь можно добавить JavaScript-логику, если нужно
+    // Например, для динамического обновления счета без перезагрузки страницы
+</script>
 </body>
 </html>

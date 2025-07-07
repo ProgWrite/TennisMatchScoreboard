@@ -1,4 +1,4 @@
-package TennisMatchScoreboard.Servlet;
+package TennisMatchScoreboard.servlet;
 
 import TennisMatchScoreboard.dto.CurrentMatchDto;
 import TennisMatchScoreboard.entity.OngoingMatch;

@@ -1,4 +1,4 @@
-    package TennisMatchScoreboard.Servlet;
+    package TennisMatchScoreboard.servlet;
 
 
     import TennisMatchScoreboard.entity.Match;

@@ -1,4 +1,4 @@
-package TennisMatchScoreboard.Servlet;
+package TennisMatchScoreboard.servlet;
 
 import TennisMatchScoreboard.dto.PaginationDto;
 import TennisMatchScoreboard.entity.Match;
@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 @WebServlet("/matches")
 public class FinishedMatchesServlet extends HttpServlet {
-    private static final int MATCHES_PER_PAGE = 5;
+    private static final int MATCHES_PER_PAGE = 3;
 
     FinishedMatchesPersistenceService persistenceService = new FinishedMatchesPersistenceService();
 

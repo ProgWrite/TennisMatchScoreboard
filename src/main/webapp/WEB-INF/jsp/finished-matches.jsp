@@ -1,5 +1,16 @@
+<%@ page import="java.util.List" %>
+<%@ page import="TennisMatchScoreboard.entity.Match" %>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%
+    String playerName = (String) request.getAttribute("playerName");
+    List<Match> matches = (List<Match>) request.getAttribute("matches");
+    Integer totalPages = (Integer) request.getAttribute("totalPages");
+    Integer currentPage = (Integer) request.getAttribute("currentPage");
+    String contextPath = request.getContextPath();
+%>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -208,14 +219,14 @@
 <div class="container">
     <h1>Законченные матчи</h1>
 
-    <form class="search-form" action="${pageContext.request.contextPath}/matches" method="get">
+    <form class="search-form" action="<%= contextPath %>/matches" method="get">
         <input type="text" name="filter_by_player_name"
-               value="${not empty playerName ? playerName : ''}"
+               value="<%= playerName != null ? playerName : "" %>"
                placeholder="Введите имя игрока">
         <button type="submit">Поиск</button>
-        <c:if test="${not empty playerName}">
-            <a href="${pageContext.request.contextPath}/matches" class="reset-link">Сбросить</a>
-        </c:if>
+        <% if (playerName != null && !playerName.isEmpty()) { %>
+        <a href="<%= contextPath %>/matches" class="reset-link">Сбросить</a>
+        <% } %>
     </form>
 
     <table class="matches-table">
@@ -228,45 +239,46 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="match" items="${matches}">
-            <tr>
-                <td>${match.id}</td>
-                <td>${match.player1.name}</td>
-                <td>${match.player2.name}</td>
-                <td class="winner">${match.winner.name}</td>
-            </tr>
-        </c:forEach>
+        <% if (matches != null) {
+            for (Match match : matches) { %>
+        <tr>
+            <td><%= match.getId() %></td>
+            <td><%= match.getPlayer1().getName() %></td>
+            <td><%= match.getPlayer2().getName() %></td>
+            <td class="winner"><%= match.getWinner().getName() %></td>
+        </tr>
+        <%   }
+        } %>
         </tbody>
     </table>
 
-    <c:if test="${totalPages > 1}">
-        <div class="pagination">
-            <c:if test="${currentPage > 1}">
-                <a href="${pageContext.request.contextPath}/matches?page=${currentPage - 1}&filter_by_player_name=${playerName}">
-                    ← Назад
-                </a>
-            </c:if>
+    <% if (totalPages != null && totalPages > 1) { %>
+    <div class="pagination">
+        <% if (currentPage != null && currentPage > 1) { %>
+        <a href="<%= contextPath %>/matches?page=<%= currentPage - 1 %>&filter_by_player_name=<%= playerName != null ? playerName : "" %>">
+            ← Назад
+        </a>
+        <% } %>
 
-            <c:forEach begin="1" end="${totalPages}" var="pageNum">
-                <c:choose>
-                    <c:when test="${pageNum == currentPage}">
-                        <span class="current-page">${pageNum}</span>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="${pageContext.request.contextPath}/matches?page=${pageNum}&filter_by_player_name=${playerName}">
-                                ${pageNum}
-                        </a>
-                    </c:otherwise>
-                </c:choose>
-            </c:forEach>
+        <% if (totalPages > 0) {
+            for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
+                if (pageNum == currentPage) { %>
+        <span class="current-page"><%= pageNum %></span>
+        <% } else { %>
+        <a href="<%= contextPath %>/matches?page=<%= pageNum %>&filter_by_player_name=<%= playerName != null ? playerName : "" %>">
+            <%= pageNum %>
+        </a>
+        <% }
+        }
+        } %>
 
-            <c:if test="${currentPage < totalPages}">
-                <a href="${pageContext.request.contextPath}/matches?page=${currentPage + 1}&filter_by_player_name=${playerName}">
-                    Вперед →
-                </a>
-            </c:if>
-        </div>
-    </c:if>
+        <% if (currentPage != null && currentPage < totalPages) { %>
+        <a href="<%= contextPath %>/matches?page=<%= currentPage + 1 %>&filter_by_player_name=<%= playerName != null ? playerName : "" %>">
+            Вперед →
+        </a>
+        <% } %>
+    </div>
+    <% } %>
 
     <div class="navigation-links">
         <a href="/">Вернуться на главную страницу</a>

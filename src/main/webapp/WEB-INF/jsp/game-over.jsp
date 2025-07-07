@@ -1,9 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:set var="firstPlayerName" value="${sessionScope.firstPlayerName}" />
-<c:set var="secondPlayerName" value="${sessionScope.secondPlayerName}" />
-<c:set var="matchScore" value="${sessionScope.matchScore}" />
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -162,8 +158,8 @@
     <div class="tennis-icon"></div>
     <h1>Игра окончена!</h1>
 
-    <div class="winner-banner">
-        Победитель: ${matchScore.firstPlayerSets > matchScore.secondPlayerSets ? firstPlayerName : secondPlayerName}
+    <div id="winner-banner" class="winner-banner hidden">
+
     </div>
 
     <table class="score-table">
@@ -175,19 +171,8 @@
             <th>Очки</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <td>${firstPlayerName}</td>
-            <td>${matchScore.firstPlayerSets}</td>
-            <td>${matchScore.firstPlayerGames}</td>
-            <td>${matchScore.firstPlayerPoints}</td>
-        </tr>
-        <tr>
-            <td>${secondPlayerName}</td>
-            <td>${matchScore.secondPlayerSets}</td>
-            <td>${matchScore.secondPlayerGames}</td>
-            <td>${matchScore.secondPlayerPoints}</td>
-        </tr>
+        <tbody id="score-table-body">
+
         </tbody>
     </table>
 
@@ -197,5 +182,47 @@
         <a href="new-match" class="btn">Создать новый матч</a>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const firstPlayerName = "${sessionScope.firstPlayerName}";
+        const secondPlayerName = "${sessionScope.secondPlayerName}";
+
+        const matchScore = {
+            firstPlayerSets: ${sessionScope.matchScore.firstPlayerSets},
+            secondPlayerSets: ${sessionScope.matchScore.secondPlayerSets},
+            firstPlayerGames: ${sessionScope.matchScore.firstPlayerGames},
+            secondPlayerGames: ${sessionScope.matchScore.secondPlayerGames},
+            firstPlayerPoints: ${sessionScope.matchScore.firstPlayerPoints},
+            secondPlayerPoints: ${sessionScope.matchScore.secondPlayerPoints}
+
+        };
+
+        const winnerBanner = document.getElementById('winner-banner');
+        winnerBanner.textContent = `Победитель: ${matchScore.firstPlayerSets > matchScore.secondPlayerSets ? firstPlayerName : secondPlayerName}`;
+        winnerBanner.classList.remove('hidden');
+
+        const scoreTableBody = document.getElementById('score-table-body');
+
+        const row1 = document.createElement('tr');
+        row1.innerHTML = `
+            <td>${firstPlayerName}</td>
+            <td>${matchScore.firstPlayerSets}</td>
+            <td>${matchScore.firstPlayerGames}</td>
+            <td>${matchScore.firstPlayerPoints}</td>
+        `;
+        scoreTableBody.appendChild(row1);
+
+        const row2 = document.createElement('tr');
+        row2.innerHTML = `
+            <td>${secondPlayerName}</td>
+            <td>${matchScore.secondPlayerSets}</td>
+            <td>${matchScore.secondPlayerGames}</td>
+            <td>${matchScore.secondPlayerPoints}</td>
+        `;
+        scoreTableBody.appendChild(row2);
+    });
+</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -179,9 +179,7 @@
                        placeholder="Введите имя"
                        required
                        value="${not empty name ? name : param.name}">
-                <c:if test="${not empty errors.name}">
-                    <div class="error-message">${errors.name}</div>
-                </c:if>
+                <div id="name-error" class="error-message hidden">${errors.name}</div>
             </div>
             <div class="form-group player-input">
                 <label for="name2">Игрок 2</label>
@@ -189,20 +187,36 @@
                        placeholder="Введите имя"
                        required
                        value="${not empty name2 ? name2 : param.name2}">
-                <c:if test="${not empty errors.name2}">
-                    <div class="error-message">${errors.name2}</div>
-                </c:if>
+                <div id="name2-error" class="error-message hidden">${errors.name2}</div>
             </div>
         </div>
 
-        <c:if test="${not empty error}">
-            <div class="global-error">${error}</div>
-        </c:if>
+        <div id="global-error" class="global-error hidden">${error}</div>
 
         <button type="submit" class="btn">Начать матч</button>
     </form>
 
     <a href="/" class="back-link">← Вернуться на главную</a>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameError = document.getElementById('name-error');
+        const name2Error = document.getElementById('name2-error');
+        const globalError = document.getElementById('global-error');
+
+        if (nameError.textContent.trim() !== '') {
+            nameError.classList.remove('hidden');
+        }
+
+        if (name2Error.textContent.trim() !== '') {
+            name2Error.classList.remove('hidden');
+        }
+
+        if (globalError.textContent.trim() !== '') {
+            globalError.classList.remove('hidden');
+        }
+    });
+</script>
 </body>
 </html>
